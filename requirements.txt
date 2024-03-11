@@ -1,2 +1,6 @@
 python-dotenv
 chromadb
+langchain-community
+langchain-openai
+pypdf
+langchain
