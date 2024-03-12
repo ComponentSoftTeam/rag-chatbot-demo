@@ -11,6 +11,18 @@ from typing import List
 import chromadb
 
 
+
+class OpenAIVectorStore(VectorStore):
+   ...
+
+
+openai_vector_store = OpenAIVectorStore()
+retriever = openai_vector_store.as_retriever()
+
+print(retriever.invoke("What frequency bands are used in 5G?"))
+
+
+
 class EmbeddingType(Enum):
     OPEN_AI = "openai"
     SENTENCE_TRANSFORMER = "sentence transformers"

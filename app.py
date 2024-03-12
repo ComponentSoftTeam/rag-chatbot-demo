@@ -36,6 +36,8 @@ from dotenv import load_dotenv
 from langchain_openai import OpenAIEmbeddings
 from langchain_core.vectorstores import VectorStore
 
+from prompts import ANSWER_PROMPT, CONDENSE_QUESTION_PROMPT, DOCUMENT_PROMPT
+
 load_dotenv()
 
 
@@ -51,26 +53,7 @@ VECTOR_STORES = {
 }
 
 class ChatBot:
-    CONDENSE_QUESTION_PROMPT = PromptTemplate.from_template("""\
-Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
-
-Chat History:
-{chat_history}
-Follow Up Input: {question}
-Standalone question:
-"""
-    )
-
-    DOCUMENT_PROMPT = PromptTemplate.from_template("Source {file_source}: {page_content}")
-
-    ANSWER_PROMPT = ChatPromptTemplate.from_template("""\
-Answer the question based only on the following context from files:
-{context}
-
-Question: {question}
-"""
-    )
-
+    
     store: Dict[Tuple[str, str], BaseChatMessageHistory] = {}
 
     @staticmethod
@@ -87,7 +70,7 @@ Question: {question}
             "page_content": doc.page_content,
             "file_source": "data.pdf, page 5",
         }
-        return cls.DOCUMENT_PROMPT.format(**document_info)
+        return DOCUMENT_PROMPT.format(**document_info)
 
     @staticmethod
     def combine_documents(docs, document_separator="\n\n"):
@@ -110,20 +93,28 @@ Question: {question}
         #   question: str                    #
         # OUTPUTS:                           #
         #   standalone_question: str         #
+        #   chat_history: str                #
+        #   question: str                    #
         #####################################x
         standalone_question = RunnableParallel(
             standalone_question=RunnablePassthrough.assign(chat_history=lambda x: get_buffer_string(x["chat_history"]))
-            | cls.CONDENSE_QUESTION_PROMPT
+            | CONDENSE_QUESTION_PROMPT
             | ChatOpenAI(temperature=0)
             | StrOutputParser(),
+            question=lambda x: x["question"],
+            chat_history=lambda x: x["chat_history"],
         )
 
         #########################################
         # INPUTS:                               #
         #   standalone_question: str            #
+        #   chat_history: str                   #
+        #   question: str                       #
         # OUTPUTS:                              #
         #   context: str                        #
-        #   question: str = standalone_question #
+        #   standalone_question: str            #
+        #   chat_history: str                   #
+        #   question: str                       #
         #########################################
         question_context = {
             "context": (
@@ -131,7 +122,9 @@ Question: {question}
                 | retriever
                 | cls.combine_documents
             ),
-            "question": lambda x: x["standalone_question"],
+            "standalone_question": lambda x: x["standalone_question"],
+            "chat_history": lambda x: x["chat_history"],
+            "question": lambda x: x["question"]
         }
 
 
@@ -140,12 +133,12 @@ Question: {question}
         #   chat_history: ChatMessageHistory     #
         #   question: str                        #
         # OUTPUTS:                               #
-        #   str                                  #
+        #   str (Model answer)                   #
         ##########################################
         rag_chain = (
             standalone_question
             | question_context
-            | cls.ANSWER_PROMPT
+            | ANSWER_PROMPT
             | ChatOpenAI()
             | StrOutputParser()
         )
@@ -159,6 +152,7 @@ Question: {question}
         # OUTPUTS:                     #
         #   str                        #
         ################################
+        # NOTE: The user_id and conversation_id as a pair defines the session and thus the chat history
         with_message_history = RunnableWithMessageHistory(
             rag_chain,
             get_session_history=ChatBot.get_session_history,
@@ -205,6 +199,18 @@ user_config = {
     "conversation_id": "conversation_id",
 }
 
+from langfuse.callback import CallbackHandler
+
+trace = {
+    "callbacks": [
+        CallbackHandler(
+            secret_key="Fill out",
+            public_key="Fill out",
+            host="http://localhost:3000",
+        )
+    ]
+}
+
 while True:
     # print history
     history = ChatBot.get_session_history(user_config["user_id"], user_config["conversation_id"])
@@ -215,6 +221,6 @@ while True:
 
     # get chain
     chain = ChatBot.get_chain(embedding_type=EmbeddingType.OPEN_AI, model_type="openai")
-    response = chain.invoke({"question": question}, config={
-        "configurable": user_config})
+    response = chain.invoke({"question": question}, config={"configurable": user_config} | trace)
+
 
