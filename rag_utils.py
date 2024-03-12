@@ -10,6 +10,7 @@ from typing import List
 
 import chromadb
 
+
 class EmbeddingType(Enum):
     OPEN_AI = "openai"
     SENTENCE_TRANSFORMER = "sentence transformers"
