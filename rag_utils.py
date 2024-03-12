@@ -29,6 +29,7 @@ class RAG:
             case _:
                 raise NotImplementedError(f"Embedding type {embedding_type} not implemented")
             
+            
     @abstractmethod
     def exec_query(
         self,

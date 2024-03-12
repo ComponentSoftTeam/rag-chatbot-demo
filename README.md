@@ -13,6 +13,8 @@
 ### RAG
 - [Chroma persistent client](https://python.langchain.com/docs/integrations/vectorstores/chroma)
 - [Adding sources](https://python.langchain.com/docs/use_cases/question_answering/sources)
+- [Optimal Chunk size](https://www.youtube.com/watch?v=1bbDH3kyf9I)
+- [Hybrid Search](https://www.youtube.com/watch?v=r2m9DbEmeqI)
 
 
 ### LLM Generation
