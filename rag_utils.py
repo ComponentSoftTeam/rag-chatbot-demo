@@ -1,27 +1,13 @@
-from abc import abstractmethod
-from dotenv import load_dotenv, find_dotenv
-from langchain_community.vectorstores import Chroma
-from dataclasses import dataclass
-from enum import Enum
 import os
-from langchain_openai import OpenAIEmbeddings
-from chromadb.config import Settings
+
+from abc import abstractmethod
+from enum import Enum
+from dotenv import find_dotenv, load_dotenv
 from typing import List
+from dataclasses import dataclass
 
-import chromadb
-
-
-
-class OpenAIVectorStore(VectorStore):
-   ...
-
-
-openai_vector_store = OpenAIVectorStore()
-retriever = openai_vector_store.as_retriever()
-
-print(retriever.invoke("What frequency bands are used in 5G?"))
-
-
+from langchain_community.vectorstores import Chroma
+from langchain_openai import OpenAIEmbeddings
 
 class EmbeddingType(Enum):
     OPEN_AI = "openai"

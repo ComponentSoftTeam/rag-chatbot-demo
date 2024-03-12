@@ -1,16 +1,10 @@
-from langchain_community.vectorstores import Chroma
-from langchain_openai import OpenAIEmbeddings
-from pypdf import PdfReader
 from tqdm import tqdm
+from pypdf import PdfReader
+from dotenv import find_dotenv, load_dotenv
+
+from langchain_openai import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-import chromadb.utils.embedding_functions as embedding_functions
-from chromadb.config import Settings
-
-import chromadb
-import os
-
-from dotenv import load_dotenv, find_dotenv
-
+from langchain_community.vectorstores import Chroma
 
 def read_pdf(path):
     reader = PdfReader(path)

@@ -1,45 +1,23 @@
-from __future__ import annotations
+from enum import IntEnum
 from operator import itemgetter
-from langchain.memory import ChatMessageHistory
-from typing import Dict, Iterator
-from langchain_community.vectorstores import Chroma
-from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
-from langchain_core.messages import get_buffer_string
-from langchain_core.runnables import RunnableParallel, RunnablePassthrough
-from langchain_core.output_parsers import StrOutputParser
-
-
-from operator import itemgetter
-from typing import List
-
-from langchain_openai.chat_models import ChatOpenAI
-
-from langchain_core.chat_history import BaseChatMessageHistory
-from langchain_core.documents import Document
-from langchain_core.messages import BaseMessage, AIMessage, SystemMessage, HumanMessage
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.pydantic_v1 import BaseModel, Field
-from langchain_core.runnables import (
-    RunnableLambda,
-    ConfigurableFieldSpec,
-    RunnablePassthrough,
-)
-from langchain_core.runnables.history import RunnableWithMessageHistory
-
-
-from abc import abstractmethod
-
-from dataclasses import dataclass
-from enum import Enum, IntEnum
-from typing import Iterator, List, Optional, Tuple
+from typing import Dict, Tuple
 from dotenv import load_dotenv
-from langchain_openai import OpenAIEmbeddings
+
+from langchain.memory import ChatMessageHistory
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage, get_buffer_string
+from langchain_core.documents import Document
+from langchain_core.runnables import ConfigurableFieldSpec, RunnableLambda, RunnableParallel, RunnablePassthrough
 from langchain_core.vectorstores import VectorStore
+from langchain_core.chat_history import BaseChatMessageHistory
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_community.vectorstores import Chroma
+from langchain_openai import OpenAIEmbeddings
+from langchain_openai.chat_models import ChatOpenAI
 
 from prompts import ANSWER_PROMPT, CONDENSE_QUESTION_PROMPT, DOCUMENT_PROMPT
 
 load_dotenv()
-
 
 class EmbeddingType(IntEnum):
       OPEN_AI = 0
