@@ -1,5 +1,6 @@
-chroma_db/
-openai_db/
+mistral_vecdb/
+openai_vecdb/
+stransformers_vecdb/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

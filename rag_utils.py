@@ -1,6 +1,8 @@
 from abc import abstractmethod
 from dotenv import load_dotenv, find_dotenv
 from langchain_community.vectorstores import Chroma
+from langchain_community.embeddings import SentenceTransformerEmbeddings 
+from langchain_mistralai import MistralAIEmbeddings
 from langchain_core.embeddings import Embeddings
 from dataclasses import dataclass
 from enum import Enum, IntEnum
@@ -25,11 +27,11 @@ class RAG(VectorStore):
     def __init__(self, embedding_type: "EmbeddingType") -> None:
         match embedding_type:
             case EmbeddingType.OPEN_AI:
-                self._langchain_chroma = Chroma(persist_directory="./openai_db", embedding_function=OpenAIEmbeddings())
+                self._langchain_chroma = Chroma(persist_directory=os.getenv("OPENAI_CHROMA_COLLECTION"), embedding_function=OpenAIEmbeddings())
             case EmbeddingType.SENTENCE_TRANSFORMER:
-                raise NotImplementedError("Sentence Transformer not implemented")
+                self._langchain_chroma = Chroma(persist_directory=os.getenv("STRANSFORMERS_CHROMA_COLLECTION"), embedding_function=SentenceTransformerEmbeddings())
             case EmbeddingType.MISTRAL:
-                raise NotImplementedError("Mistral not implemented")
+                self._langchain_chroma = Chroma(persist_directory=os.getenv("MISTRAL_CHROMA_COLLECTION"), embedding_function=MistralAIEmbeddings())
         
         self._cross_encoder = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2') 
 
@@ -54,7 +56,7 @@ class RAG(VectorStore):
             pairs.append([query, doc])
 
         scores = self._cross_encoder.predict(pairs)
-        
+
         reordered_docs = []
         for o in np.argsort(scores)[::-1]:
             if scores[0] > 0:
@@ -143,18 +145,20 @@ class RAG(VectorStore):
     def delete(self, ids: Optional[List[str]] = None, **kwargs: Any) -> None:
         return self._langchain_chroma.delete(ids, **kwargs)
     
-# load_dotenv()
 
-# client = RAG(embedding_type=EmbeddingType.OPEN_AI)
-# retriever = client.as_retriever()
-# query1 = "What is the meaning of life?"
-# res1 = retriever.invoke(query1)
-# for r in res1:
-#     print(r + '\n')
+load_dotenv()
+client = RAG(embedding_type=EmbeddingType.SENTENCE_TRANSFORMER)
+retriever = client.as_retriever()
 
-# print('-'*50)
+query1 = "What is the meaning of life?"
+res1 = retriever.invoke(query1)
 
-# query2 = "What frequency bands does 5G use?"
-# res2 = retriever.invoke(query2)
-# for r in res2:
-#     print(r + '\n')
+for r in res1:
+    print(r.page_content + '\n')
+    print('-'*50)
+
+query2 = "What frequency bands does 5G use?"
+res2 = retriever.invoke(query2)
+
+for r in res2:
+    print(r.page_content + '\n')

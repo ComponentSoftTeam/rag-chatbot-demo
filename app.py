@@ -23,8 +23,8 @@ load_dotenv()
 
 VECTOR_STORES = {
     EmbeddingType.OPEN_AI: RAG(embedding_type=EmbeddingType.OPEN_AI),
-    EmbeddingType.SENTENCE_TRANSFORMER: Chroma(persist_directory="./chroma_db", embedding_function=OpenAIEmbeddings()),
-    EmbeddingType.MISTRAL: Chroma(persist_directory="./chroma_db", embedding_function=OpenAIEmbeddings()),
+    EmbeddingType.SENTENCE_TRANSFORMER: RAG(embedding_type=EmbeddingType.SENTENCE_TRANSFORMER),
+    EmbeddingType.MISTRAL: RAG(embedding_type=EmbeddingType.MISTRAL),
 }
 
 class ChatBot:

@@ -8,3 +8,4 @@ langchainhub
 langfuse
 sentence-transformers
 numpy
+langchain-mistralai
