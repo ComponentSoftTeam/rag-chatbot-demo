@@ -9,6 +9,8 @@ from langchain_openai import OpenAIEmbeddings
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Type
 from langchain_core.vectorstores import VectorStore
 from langchain_core.documents import Document
+from sentence_transformers import CrossEncoder
+import numpy as np
 
 import chromadb
 
@@ -18,11 +20,6 @@ class EmbeddingType(IntEnum):
       OPEN_AI = 0
       SENTENCE_TRANSFORMER = 1
       MISTRAL = 2
-    
-@dataclass
-class RagResponse:
-    source: str
-    content: str
 
 class RAG(VectorStore):
     def __init__(self, embedding_type: "EmbeddingType") -> None:
@@ -33,6 +30,8 @@ class RAG(VectorStore):
                 raise NotImplementedError("Sentence Transformer not implemented")
             case EmbeddingType.MISTRAL:
                 raise NotImplementedError("Mistral not implemented")
+        
+        self._cross_encoder = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2') 
 
     def add_texts(self, texts: Iterable[str], metadatas: List[dict] | None = None, **kwargs: Any) -> List[str]:
         return self._langchain_chroma.add_texts(texts, metadatas, **kwargs)
@@ -46,8 +45,22 @@ class RAG(VectorStore):
     def similarity_search(
         self, query: str, k: int = 4, **kwargs: Any
     ) -> List[Document]:
-        # TODO: rewrite with ranking and filtering
-        return self._langchain_chroma.similarity_search(query, k, **kwargs)
+        results = self._langchain_chroma.similarity_search(query, k, **kwargs)
+
+        docs = [doc.page_content for doc in results]
+
+        pairs = []
+        for doc in docs:
+            pairs.append([query, doc])
+
+        scores = self._cross_encoder.predict(pairs)
+        
+        reordered_docs = []
+        for o in np.argsort(scores)[::-1]:
+            if scores[0] > 0:
+                reordered_docs.append(Document(page_content = docs[o]))
+
+        return reordered_docs
     
     def similarity_search_by_vector(
         self,
@@ -129,3 +142,19 @@ class RAG(VectorStore):
     
     def delete(self, ids: Optional[List[str]] = None, **kwargs: Any) -> None:
         return self._langchain_chroma.delete(ids, **kwargs)
+    
+# load_dotenv()
+
+# client = RAG(embedding_type=EmbeddingType.OPEN_AI)
+# retriever = client.as_retriever()
+# query1 = "What is the meaning of life?"
+# res1 = retriever.invoke(query1)
+# for r in res1:
+#     print(r + '\n')
+
+# print('-'*50)
+
+# query2 = "What frequency bands does 5G use?"
+# res2 = retriever.invoke(query2)
+# for r in res2:
+#     print(r + '\n')

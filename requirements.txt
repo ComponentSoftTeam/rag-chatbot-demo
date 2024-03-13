@@ -6,3 +6,5 @@ pypdf
 langchain
 langchainhub
 langfuse
+sentence-transformers
+numpy
