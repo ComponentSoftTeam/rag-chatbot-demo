@@ -15,17 +15,14 @@ from langchain_community.vectorstores import Chroma
 from langchain_openai import OpenAIEmbeddings
 from langchain_openai.chat_models import ChatOpenAI
 
+from rag_utils import RAG, EmbeddingType, RagResponse
+
 from prompts import ANSWER_PROMPT, CONDENSE_QUESTION_PROMPT, DOCUMENT_PROMPT
 
 load_dotenv()
 
-class EmbeddingType(IntEnum):
-      OPEN_AI = 0
-      SENTENCE_TRANSFORMER = 1
-      MISTRAL = 2
-
 VECTOR_STORES = {
-    EmbeddingType.OPEN_AI: Chroma(persist_directory="./chroma_db", embedding_function=OpenAIEmbeddings()),
+    EmbeddingType.OPEN_AI: RAG(embedding_type=EmbeddingType.OPEN_AI),
     EmbeddingType.SENTENCE_TRANSFORMER: Chroma(persist_directory="./chroma_db", embedding_function=OpenAIEmbeddings()),
     EmbeddingType.MISTRAL: Chroma(persist_directory="./chroma_db", embedding_function=OpenAIEmbeddings()),
 }

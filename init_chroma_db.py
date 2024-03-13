@@ -35,9 +35,9 @@ def main():
 
     character_split_texts = split_pdf_texts(pdf_read_texts)
 
-    chroma_db = Chroma.from_texts(character_split_texts, OpenAIEmbeddings(), persist_directory="./chroma_db")
+    openai_db = Chroma.from_texts(character_split_texts, OpenAIEmbeddings(), persist_directory="./openai_db")
 
-    print(f"Uploaded {chroma_db._collection.count()} records to Chroma")
+    print(f"Uploaded {openai_db._collection.count()} records to Chroma")
 
 if __name__ == "__main__":
     main()
