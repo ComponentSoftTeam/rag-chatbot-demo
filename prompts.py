@@ -51,11 +51,12 @@ ANSWER_PROMPT = ChatPromptTemplate.from_template(SYSTEM_PROMPT + """\
 
 
 The following is your task:
-Answer the question based only on the following context from files, however if the context is irrelevant ignore it and answer the question based on your own knowledge:
-You are given a question that has the relevant context:
 
-{standalone_question}
+Answer the question based only on the following context from files, however if the context is irrelevant ignore it and answer the question based on your own knowledge!
+You are a chatbot, and you have a record of your conversation with the user.
+History:
 
+{chat_history}
 
 You are also given the following context from the files:
 
@@ -65,13 +66,8 @@ Context:
 
 
 If you find the context irrelevant, do not say so. Instead just ignore the provided context from the files and answer the question based on your own knowledge.
-You are a chatbot, and you have a record of your conversation with the user.
-History:
 
-{chat_history}
-
-
-Answer to the input: {question}
+Answer to the input based on everything above: {question}
 """
 )
 

@@ -21,14 +21,16 @@ from prompts import ANSWER_PROMPT, CONDENSE_QUESTION_PROMPT, DOCUMENT_PROMPT
 
 load_dotenv()
 
-VECTOR_STORES = {
-    EmbeddingType.OPEN_AI: RAG(embedding_type=EmbeddingType.OPEN_AI),
-    EmbeddingType.SENTENCE_TRANSFORMER: RAG(embedding_type=EmbeddingType.SENTENCE_TRANSFORMER),
-    EmbeddingType.MISTRAL: RAG(embedding_type=EmbeddingType.MISTRAL),
-}
+
 
 class ChatBot:
     
+    VECTOR_STORES = {
+        EmbeddingType.OPEN_AI: RAG(embedding_type=EmbeddingType.OPEN_AI),
+        EmbeddingType.SENTENCE_TRANSFORMER: RAG(embedding_type=EmbeddingType.SENTENCE_TRANSFORMER),
+        EmbeddingType.MISTRAL: RAG(embedding_type=EmbeddingType.MISTRAL),
+    }
+
     store: Dict[Tuple[str, str], BaseChatMessageHistory] = {}
 
     @staticmethod
@@ -50,12 +52,12 @@ class ChatBot:
     @staticmethod
     def combine_documents(docs, document_separator="\n\n"):
         doc_strings = [ChatBot.format_document(doc) for doc in docs]
-        return document_separator.join(doc_strings)
-
+        context = document_separator.join(doc_strings)
+        return context or "No relevant context found."
 
     @classmethod
     def get_vector_store(cls, embedding_type: EmbeddingType) -> VectorStore:
-        return VECTOR_STORES[embedding_type]
+        return cls.VECTOR_STORES[embedding_type]
 
     @classmethod
     def construct_chain(cls, embedding_type: EmbeddingType, model_type: str):
@@ -97,7 +99,6 @@ class ChatBot:
                 | retriever
                 | cls.combine_documents
             ),
-            "standalone_question": lambda x: x["standalone_question"],
             "chat_history": lambda x: x["chat_history"],
             "question": lambda x: x["question"]
         }

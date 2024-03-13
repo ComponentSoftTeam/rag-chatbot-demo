@@ -1,4 +1,3 @@
-import os
 from tqdm import tqdm
 from pypdf import PdfReader
 from dotenv import find_dotenv, load_dotenv
@@ -8,6 +7,8 @@ from langchain_community.embeddings import SentenceTransformerEmbeddings
 from langchain_mistralai import MistralAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
+
+from config import OPENAI_CHROMA_COLLECTION, STRANSFORMERS_CHROMA_COLLECTION, MISTRAL_CHROMA_COLLECTION
 
 def read_pdf(path):
     reader = PdfReader(path)
@@ -38,13 +39,25 @@ def main():
 
     character_split_texts = split_pdf_texts(pdf_read_texts)
 
-    openai_db = Chroma.from_texts(character_split_texts, OpenAIEmbeddings(), persist_directory=os.getenv("OPENAI_CHROMA_COLLECTION"))
+    openai_db = Chroma.from_texts(
+        texts=character_split_texts, 
+        embedding=OpenAIEmbeddings(),
+        persist_directory=OPENAI_CHROMA_COLLECTION
+    )
     print(f"Uploaded {openai_db._collection.count()} records to Chroma")
 
-    stransformers_db = Chroma.from_texts(character_split_texts, SentenceTransformerEmbeddings(), persist_directory=os.getenv("STRANSFORMERS_CHROMA_COLLECTION"))
+    stransformers_db = Chroma.from_texts(
+        texts=character_split_texts,
+        embedding=SentenceTransformerEmbeddings(),
+        persist_directory=STRANSFORMERS_CHROMA_COLLECTION
+    )
     print(f"Uploaded {stransformers_db._collection.count()} records to Chroma")
 
-    mistral_db = Chroma.from_texts(character_split_texts, MistralAIEmbeddings(), persist_directory=os.getenv("MISTRAL_CHROMA_COLLECTION"))
+    mistral_db = Chroma.from_texts(
+        texts=character_split_texts,
+        embedding=MistralAIEmbeddings(),
+        persist_directory=MISTRAL_CHROMA_COLLECTION
+    )
     print(f"Uploaded {mistral_db._collection.count()} records to Chroma")
 
 
