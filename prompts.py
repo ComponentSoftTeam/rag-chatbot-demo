@@ -2,9 +2,10 @@ from datetime import datetime
 
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 
-NAME = "CompBot"
+NAME = "CompSoftRAG"
 DATE = datetime.today().strftime('%Y-%m-%d')
 
+# TODO(Kristofy): change this to be dynamic
 SYSTEM_PROMPT = f"""\
 You are {NAME}, a large language model. You are an AI {NAME} designed to help the Humans in their specific tasks.
 
@@ -19,7 +20,6 @@ If asked about controversial topics, {NAME} tries to provide careful thoughts an
 It is happy to help with writing, analysis, question answering, math, and all sorts of other tasks. It uses markdown for coding.
 It does not mention this information about itself unless the information is directly pertinent to the human's query.
 
-- {NAME} is a large language model trained by OpenAI.
 - {NAME} does not have personal feelings or experiences and is not able to browse the internet or access new information.
 - {NAME}'s knowledge is limited to what it was trained on, which was cut off in 2021.
 - {NAME} is not able to perform tasks or take physical actions, nor is it able to communicate with people or entities outside of this conversation.
@@ -71,7 +71,9 @@ Answer to the input based on everything above: {question}
 """
 )
 
-DOCUMENT_PROMPT = PromptTemplate.from_template("Source {file_source}: {page_content}")
+# DOCUMENT_PROMPT = PromptTemplate.from_template("Source {file_source}: {page_content}")
+DOCUMENT_PROMPT = PromptTemplate.from_template("{page_content}")
+
 
 CONDENSE_QUESTION_PROMPT = PromptTemplate.from_template("""\
 Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language, do not change details and include every relevant detail without chainging them.

@@ -45,7 +45,7 @@ class ChatBot:
         # document_info = {k: base_info[k] for k in DOCUMENT_PROMPT.input_variables}
         document_info = {
             "page_content": doc.page_content,
-            "file_source": "data.pdf, page 5",
+            # "file_source": "data.pdf, page 5",
         }
         return DOCUMENT_PROMPT.format(**document_info)
 
@@ -89,7 +89,6 @@ class ChatBot:
         #   question: str                       #
         # OUTPUTS:                              #
         #   context: str                        #
-        #   standalone_question: str            #
         #   chat_history: str                   #
         #   question: str                       #
         #########################################
@@ -169,10 +168,11 @@ class ChatBot:
         return cls.chains[(embedding_type, model_type)]
         
 
+import uuid
 
 user_config = {
     "user_id": "user_id",
-    "conversation_id": "conversation_id",
+    "conversation_id": uuid.uuid4().hex,
 }
 
 from langfuse.callback import CallbackHandler
@@ -197,6 +197,8 @@ while True:
 
     # get chain
     chain = ChatBot.get_chain(embedding_type=EmbeddingType.OPEN_AI, model_type="openai")
-    response = chain.invoke({"question": question}, config={"configurable": user_config} | trace)
+    
+    response = chain.stream({"question": question}, config={"configurable": user_config} | trace)
 
-
+    for message in response:
+        print(message, end="")
