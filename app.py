@@ -34,9 +34,9 @@ class ChatBotConfig:
     OPENAI_MODELS = Literal["gpt-3.5-turbo", "gpt-4"]
     MISTRAL_MODELS = Literal["mistral-tiny", "mistral-small", "mistral-medium",  "mistral-large"]
     __LLAMA_MODEL_VERSIONS = {
-        "llama-2-7b-chat": "f1d50bb24186c52daae319ca8366e53debdaa9e0ae7ff976e918df752732ccc4",
-        "llama-2-13b-chat": "6b4da803a2382c08868c5af10a523892f38e2de1aafb2ee55b020d9efef2fdb8",
-        "llama-2-70b-chat": "2d19859030ff705a87c746f7e96eea03aefb71f166725aee39692f1476566d48",
+        "llama-2-7b-chat": "13c3cdee13ee059ab779f0291d29054dab00a47dad8261375654de5540165fb0",
+        "llama-2-13b-chat": "f4e2de70d66816a838a89eeeb621910adffb0dd0baba3976c96980970978018d",
+        "llama-2-70b-chat": "02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3",
     }
     
     LLAMA_MODELS = Literal["llama-2-7b-chat", "llama-2-13b-chat", "llama-2-70b-chat"]
@@ -60,8 +60,6 @@ class ChatBotConfig:
                         raise ValueError(f"Invalid model: {model}. Must be one of {get_args(ChatBotConfig.MISTRAL_MODELS)}")
             
             case "Llama":
-                # TODO(Kristofy): change model to the per token billed one
-                # return f"meta/{model}"
                 return f"meta/{model}:{ChatBotConfig.__LLAMA_MODEL_VERSIONS[model]}"
             case _: 
                 raise ValueError(f"Invalid model family: {model_family}. Must be one of {get_args(ChatBotConfig.MODEL_FAMILY)}")
@@ -110,11 +108,9 @@ class ChatBotConfig:
                 )
 
             case "Llama":
-                # TODO:(Kristóf) Add version_obj to the Replicate model to avoid the id field
                 return Replicate(
                     model=self.model,
                     model_kwargs={"temperature": 0.01},
-                    # version_obj=""
                 )
                 
             case _: 
@@ -135,17 +131,15 @@ class ChatBotConfig:
                 )
 
             case "Llama":
-                # TODO:(Kristóf) Add version_obj to the Replicate model to avoid the id field
                 return Replicate(
                     model=self.model,
                     model_kwargs={"temperature": 0.7},
-                    # version_obj=""
                 )
                 
             case _: 
                 raise ValueError(f"Invalid model family: {self.model_family}. Must be one of {get_args(ChatBotConfig.MODEL_FAMILY)}")
 
-        
+
 class ChatBot:
     
     VECTOR_STORES = {
