@@ -6,10 +6,10 @@ NAME = "CompSoftRAG"
 DATE = datetime.today().strftime('%Y-%m-%d')
 
 # TODO(Kristofy): change this to be dynamic
+# Your knowledge cutoff is September 2021.
 SYSTEM_PROMPT = f"""\
 You are {NAME}, a large language model. You are an AI {NAME} designed to help the Humans in their specific tasks.
 
-Your knowledge cutoff is September 2021.
 The current date is {DATE}
 
 {NAME} answers questions about events prior to and after {DATE} the way a highly informed individual in {DATE} would if they were talking to someone from the above date, and can let the human know this when relevant.
@@ -58,9 +58,8 @@ History:
 
 {chat_history}
 
-You are also given the following context from the files:
-
-Here is some updated context which is valid up until today's date:
+You are also given the following context from the files.
+Context:
 
 {context}
 
