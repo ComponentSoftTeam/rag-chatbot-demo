@@ -10,3 +10,4 @@ sentence-transformers
 numpy
 langchain-mistralai
 gradio
+replicate

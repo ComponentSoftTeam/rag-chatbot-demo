@@ -56,7 +56,6 @@ class RAG(VectorStore):
         self, query: str, k: int = 4, **kwargs: Any
     ) -> List[Document]:
         results = self._langchain_chroma.similarity_search(query, k, **kwargs)
-        print(results[0])
         docs = [doc.page_content for doc in results]
 
         pairs = []

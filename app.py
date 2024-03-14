@@ -161,6 +161,11 @@ class ChatBot:
         if (user_id, conversation_id) not in ChatBot.store:
             ChatBot.store[(user_id, conversation_id)] = ChatMessageHistory()
         return ChatBot.store[(user_id, conversation_id)]
+   
+    @staticmethod
+    def del_session_history(user_id: str, conversation_id: str) -> None:
+        if (user_id, conversation_id) in ChatBot.store:
+            del ChatBot.store[(user_id, conversation_id)]
 
     @classmethod
     def format_document(cls, doc: Document) -> str:
@@ -311,8 +316,6 @@ class ChatBot:
 
         settings = ChatBotConfig(model_family, model)
         return cls.chains[(settings.embedding_type, settings.model)]
-        
-
 
 
 if __name__ == "__main__":
