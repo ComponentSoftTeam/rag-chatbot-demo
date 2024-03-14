@@ -56,7 +56,7 @@ class RAG(VectorStore):
         self, query: str, k: int = 4, **kwargs: Any
     ) -> List[Document]:
         results = self._langchain_chroma.similarity_search(query, k, **kwargs)
-
+        print(results[0])
         docs = [doc.page_content for doc in results]
 
         pairs = []
@@ -68,7 +68,7 @@ class RAG(VectorStore):
         reordered_docs = []
         for o in np.argsort(scores)[::-1]:
             if scores[0] > 0:
-                reordered_docs.append(Document(page_content=docs[o]))
+                reordered_docs.append(Document(page_content=results[o].page_content, metadata=results[o].metadata))
 
         return reordered_docs
 
@@ -182,3 +182,7 @@ class RAG(VectorStore):
     def delete(self, ids: Optional[List[str]] = None, **kwargs: Any) -> None:
         return self._langchain_chroma.delete(ids, **kwargs)
 
+load_dotenv()
+retriever = RAG(embedding_type=EmbeddingType.OPEN_AI).as_retriever()
+
+print(retriever.invoke("What is 5G?").metadata)

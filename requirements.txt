@@ -2,10 +2,11 @@ python-dotenv
 chromadb
 langchain-community
 langchain-openai
-pypdf
+PyPDF2
 langchain
 langchainhub
 langfuse
 sentence-transformers
 numpy
 langchain-mistralai
+gradio

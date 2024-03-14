@@ -15,7 +15,7 @@ from langchain_community.vectorstores import Chroma
 from langchain_openai import OpenAIEmbeddings
 from langchain_openai.chat_models import ChatOpenAI
 
-from rag_utils import RAG, EmbeddingType, RagResponse
+from rag_utils import RAG, EmbeddingType
 
 from prompts import ANSWER_PROMPT, CONDENSE_QUESTION_PROMPT, DOCUMENT_PROMPT
 
