@@ -60,8 +60,8 @@ History:
 
 You are also given the following context from the files:
 
-Context:
-       
+Here is some updated context which is valid up until today's date:
+
 {context}
 
 
