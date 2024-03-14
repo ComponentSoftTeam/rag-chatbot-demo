@@ -11,7 +11,7 @@ from langchain_core.documents import Document
 
 from config import OPENAI_CHROMA_COLLECTION, STRANSFORMERS_CHROMA_COLLECTION, MISTRAL_CHROMA_COLLECTION
 
-def parse_pdf(path, pdf_name):
+def parse_pdf(path: str, pdf_name: str, page_offset: int = 0):
     reader = PdfReader(path)
 
     pdf_texts = []
@@ -42,7 +42,7 @@ def parse_pdf(path, pdf_name):
             if already_read_characters < page:
                 curr_page = i -1
                 break
-        docs.append(Document(page_content=chunk, metadata={"source_file": str(pdf_name), "page_num": curr_page}))
+        docs.append(Document(page_content=chunk, metadata={"source_file": str(pdf_name), "page_num": curr_page+page_offset}))
                                                
     return docs
 
@@ -52,8 +52,8 @@ def main():
     path_book1 = "./data/5g_book.pdf"
     path_book2 = "./data/5g_book_2.pdf"
 
-    docs = parse_pdf(path_book1, "5g_book.pdf")
-    docs += parse_pdf(path_book2, "5g_book_2.pdf")
+    docs = parse_pdf(path_book1, "https://digilib.stekom.ac.id/assets/dokumen/ebook/feb_6dc75f6bb1ff6ccaf3c3bc84d5bfb41cd71f701a_1652450470.pdf", page_offset=34)
+    docs += parse_pdf(path_book2, "https://sist.sathyabama.ac.in/sist_coursematerial/uploads/SECA3020.pdf", page_offset=2)
 
     openai_db = Chroma.from_documents(
         docs, 
