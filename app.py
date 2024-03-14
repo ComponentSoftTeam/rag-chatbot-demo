@@ -99,18 +99,20 @@ class ChatBotConfig:
                 return ChatOpenAI(
                     model=self.model,
                     temperature=0,
+                    max_tokens=2000,
                 )
 
             case "Mistral":
                 return ChatMistralAI(
                     model=self.model,
                     temperature=0,
+                    max_tokens=2000,
                 )
 
             case "Llama":
                 return Replicate(
                     model=self.model,
-                    model_kwargs={"temperature": 0.01},
+                    model_kwargs={"temperature": 0.01, "max_new_tokens": 2000},
                 )
                 
             case _: 
@@ -122,18 +124,20 @@ class ChatBotConfig:
                 return ChatOpenAI(
                     model=self.model,
                     temperature=0.7,
+                    max_tokens=2000,
                 )
 
             case "Mistral":
                 return ChatMistralAI(
                     model=self.model,
                     temperature=0.7,
+                    max_tokens=2000,
                 )
 
             case "Llama":
                 return Replicate(
                     model=self.model,
-                    model_kwargs={"temperature": 0.7},
+                    model_kwargs={"temperature": 0.7, "max_new_tokens": 2000},
                 )
                 
             case _: 
