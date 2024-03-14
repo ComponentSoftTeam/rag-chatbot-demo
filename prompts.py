@@ -71,9 +71,7 @@ Answer to the input based on everything above: {question}
 """
 )
 
-# DOCUMENT_PROMPT = PromptTemplate.from_template("Source {file_source}: {page_content}")
-DOCUMENT_PROMPT = PromptTemplate.from_template("{page_content}")
-
+DOCUMENT_PROMPT = PromptTemplate.from_template("Source {source}:\n{content}")
 
 CONDENSE_QUESTION_PROMPT = PromptTemplate.from_template("""\
 Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language, do not change details and include every relevant detail without chainging them.

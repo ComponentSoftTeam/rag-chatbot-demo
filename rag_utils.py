@@ -181,8 +181,3 @@ class RAG(VectorStore):
 
     def delete(self, ids: Optional[List[str]] = None, **kwargs: Any) -> None:
         return self._langchain_chroma.delete(ids, **kwargs)
-
-load_dotenv()
-retriever = RAG(embedding_type=EmbeddingType.OPEN_AI).as_retriever()
-
-print(retriever.invoke("What is 5G?").metadata)

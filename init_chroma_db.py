@@ -12,19 +12,18 @@ from langchain_core.documents import Document
 from config import OPENAI_CHROMA_COLLECTION, STRANSFORMERS_CHROMA_COLLECTION, MISTRAL_CHROMA_COLLECTION
 
 def parse_pdf(path, pdf_name):
-    def find_text_in_pdf(target_text):    
-        for i, txt in enumerate(page_texts):
-            if target_text in txt:
-                return i + 1
-        return None
-    
     reader = PdfReader(path)
-    pdf_texts = [p.extract_text().strip() for p in tqdm(reader.pages)]
 
-    num_pages = len(reader.pages)
-    page_texts = [reader.pages[i].extract_text() for i in range(num_pages)]
-    
-    
+    pdf_texts = []
+    page_characters = [0]*(len(reader.pages)+1)
+    page_sum = 0
+    for i, page in enumerate(tqdm(reader.pages)):
+        page_text  = page.extract_text().strip()
+        pdf_texts.append(page_text)
+
+        page_sum += len(page_text)
+        page_characters[i] = int(page_sum)
+
     # Filter the empty strings
     pdf_texts = [text for text in pdf_texts if text]
 
@@ -34,8 +33,17 @@ def parse_pdf(path, pdf_name):
         chunk_overlap=200
     )
 
-    docs = [Document(page_content=chunk, file_source=pdf_name, page_number=find_text_in_pdf(chunk)) for chunk in character_splitter.split_text(''.join(pdf_texts))]
-
+    docs = []
+    already_read_characters = 0
+    curr_page = 0
+    for chunk in character_splitter.split_text(''.join(pdf_texts)):
+        already_read_characters += len(chunk)
+        for i, page in enumerate(page_characters):
+            if already_read_characters < page:
+                curr_page = i -1
+                break
+        docs.append(Document(page_content=chunk, metadata={"source_file": str(pdf_name), "page_num": curr_page}))
+                                               
     return docs
 
 def main():
@@ -52,23 +60,22 @@ def main():
         embedding=OpenAIEmbeddings(),
         persist_directory=OPENAI_CHROMA_COLLECTION
     )
-    print(f"Uploaded {openai_db._collection.count()} records to Chroma")
-
-    return 
+    print(f"[OPENAI] Uploaded {openai_db._collection.count()} records to Chroma")
+ 
 
     stransformers_db = Chroma.from_documents(
         docs,
         embedding=SentenceTransformerEmbeddings(),
         persist_directory=STRANSFORMERS_CHROMA_COLLECTION
     )
-    print(f"Uploaded {stransformers_db._collection.count()} records to Chroma")
+    print(f"[SENTENCE-TRANSFORMERS] Uploaded {stransformers_db._collection.count()} records to Chroma")
 
     mistral_db = Chroma.from_documents(
         docs,
         embedding=MistralAIEmbeddings(),
         persist_directory=MISTRAL_CHROMA_COLLECTION
     )
-    print(f"Uploaded {mistral_db._collection.count()} records to Chroma")
+    print(f"[MISTRAL] Uploaded {mistral_db._collection.count()} records to Chroma")
 
 
 if __name__ == "__main__":
