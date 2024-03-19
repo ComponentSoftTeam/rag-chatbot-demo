@@ -51,7 +51,7 @@ ANSWER_PROMPT = ChatPromptTemplate.from_template(SYSTEM_PROMPT + """\
 
 The following is your task:
 
-Answer the question based only on the following context from files, however if the context is irrelevant ignore it and answer the question based on your own knowledge!
+Answer the question based only on the following context from files. If the context is irrelevant, don't use your own knowledge but say that the context doesn't contain the answer.
 You are a chatbot, and you have a record of your conversation with the user.
 History:
 
@@ -63,7 +63,7 @@ Context:
 {context}
 
 
-If you find the context irrelevant, do not say so. Instead just ignore the provided context from the files and answer the question based on your own knowledge.
+If you find the context irrelevant, say so and don't use your own knowledge to give an answer.
 
 Answer to the input based on everything above: {question}
 """
