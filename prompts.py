@@ -74,6 +74,7 @@ DOCUMENT_PROMPT = PromptTemplate.from_template("Source {source}:\n{content}")
 CONDENSE_QUESTION_PROMPT = PromptTemplate.from_template("""\
 Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language, do not change details and include every relevant detail without chainging them.
 Keep the question as close to the original as possible, but make sure it is a standalone question. Make sure the standalone question matches the original question in meaning, intent, tone, and is as close as possible to the original question (with the added context).
+DON'T BE TALKATIVE, DON'T USE COURTEOUS PHRASES, JUST GIVE ME THE STANDALONE QUESTION REQUESTED."
 
 Chat History:
 {chat_history}

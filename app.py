@@ -3,6 +3,8 @@ from operator import itemgetter
 from typing import Dict, Literal, Tuple, Union, get_args, overload
 from dotenv import load_dotenv
 
+load_dotenv()
+
 from langchain.memory import ChatMessageHistory
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage, get_buffer_string
 from langchain_core.documents import Document
@@ -19,9 +21,6 @@ from langfuse.callback import CallbackHandler
 from rag_utils import RAG, EmbeddingType
 
 from prompts import ANSWER_PROMPT, CONDENSE_QUESTION_PROMPT, DOCUMENT_PROMPT
-
-load_dotenv()
-
 
 from langchain_community.llms import Replicate
 from langchain_openai import ChatOpenAI
@@ -205,7 +204,9 @@ class ChatBot:
             question=lambda x: x["question"],
             chat_history=lambda x: x["chat_history"],
         )
-
+        
+        print(standalone_question) # by EE
+        
         #########################################
         # INPUTS:                               #
         #   standalone_question: str            #
@@ -322,7 +323,7 @@ if __name__ == "__main__":
         "conversation_id": uuid.uuid4().hex,
     }
 
-    trace = {
+    """trace = {
         "callbacks": [
             CallbackHandler(
                 secret_key="Fill out",
@@ -330,7 +331,7 @@ if __name__ == "__main__":
                 host="http://localhost:3000",
             )
         ]
-    }
+    }"""
 
     while True:
         # print history
@@ -341,10 +342,12 @@ if __name__ == "__main__":
         question = input("Enter your question: ")
 
         # get chain
-        chain = ChatBot.get_chain("GPT", "gpt-3.5-turbo")
+        chain = ChatBot.get_chain("Llama", "llama-2-7b-chat")
         
-        response = chain.stream({"question": question}, config={"configurable": user_config} | trace)
+        response = chain.stream({"question": question}, config={"configurable": user_config})
 
+        if response == "exit": break
+        
         for message in response:
             print(message, end="")
 
