@@ -22,6 +22,7 @@ from rag_utils import RAG, EmbeddingType
 
 from prompts import ANSWER_PROMPT, CONDENSE_QUESTION_PROMPT, DOCUMENT_PROMPT
 
+
 from langchain_community.llms import Replicate
 from langchain_openai import ChatOpenAI
 from langchain_mistralai.chat_models import ChatMistralAI
@@ -111,8 +112,8 @@ class ChatBotConfig:
             case "Llama":
                 return Replicate(
                     model=self.model,
-                    model_kwargs={"temperature": 0.01, "max_new_tokens": 2000},
-                )
+                    model_kwargs={"temperature": 0.01, "max_new_tokens": 2000, "prompt_template": f"<s>[INST] <<SYS>> {{system_prompt}} <</SYS>>\n {{prompt}} [/INST]\n\nSure, here is a rephrased standalone question based on the original conversation: "},
+                ) # by EE
                 
             case _: 
                 raise ValueError(f"Invalid model family: {self.model_family}. Must be one of {get_args(ChatBotConfig.MODEL_FAMILY)}")
@@ -136,8 +137,8 @@ class ChatBotConfig:
             case "Llama":
                 return Replicate(
                     model=self.model,
-                    model_kwargs={"temperature": 0.7, "max_new_tokens": 2000},
-                )
+                    model_kwargs={"temperature": 0.01, "max_new_tokens": 2000, "prompt_template": f"<s>[INST] <<SYS>> {{system_prompt}} <</SYS>>\n {{prompt}} [/INST]\n\nThank you for the question!  "},
+                ) # by EE
                 
             case _: 
                 raise ValueError(f"Invalid model family: {self.model_family}. Must be one of {get_args(ChatBotConfig.MODEL_FAMILY)}")
@@ -205,7 +206,6 @@ class ChatBot:
             chat_history=lambda x: x["chat_history"],
         )
         
-        print(standalone_question) # by EE
         
         #########################################
         # INPUTS:                               #
@@ -336,10 +336,11 @@ if __name__ == "__main__":
     while True:
         # print history
         history = ChatBot.get_session_history(user_config["user_id"], user_config["conversation_id"])
-        print(history)
+        #print(history)
 
         # get question
-        question = input("Enter your question: ")
+        question = input("\nEnter your question: ")
+        if question == "exit": break
 
         # get chain
         chain = ChatBot.get_chain("Llama", "llama-2-7b-chat")

@@ -44,10 +44,9 @@ It does not mention this information about itself unless the information is dire
 """
 
 
-
-ANSWER_PROMPT = ChatPromptTemplate.from_template(SYSTEM_PROMPT + """\
-
-
+# by EE
+#ANSWER_PROMPT = ChatPromptTemplate.from_template(SYSTEM_PROMPT + """\
+ANSWER_PROMPT = ChatPromptTemplate.from_template("""\
 
 The following is your task:
 

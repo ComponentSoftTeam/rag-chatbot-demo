@@ -15,7 +15,6 @@ import chromadb
 
 from config import EmbeddingType, OPENAI_CHROMA_COLLECTION, STRANSFORMERS_CHROMA_COLLECTION, MISTRAL_CHROMA_COLLECTION
 
-load_dotenv()
 
 class RAG(VectorStore):
     _cross_encoder = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")

@@ -4,28 +4,9 @@ from typing import get_args
 
 load_dotenv()
 
-from langfuse import Langfuse
-
-langfuse = Langfuse(
-  secret_key="Fill out",
-  public_key="Fill out",
-  host="http://localhost:3000"
-)
-
-# from langfuse.callback import CallbackHandler
-#
-# trace = {
-#         "callbacks": [
-#             CallbackHandler(
-#                 secret_key="Fill out",
-#                 public_key="Fill out",
-#                 host="http://localhost:3000",
-#             )
-#         ]
-#     }
-
 import uuid
 
+# +
 import random
 import gradio as gr
 
@@ -119,14 +100,15 @@ with gr.Blocks(title="CompSoft") as demo:
     flag_btn.click(lambda *args: callback.flag(args), [modelfamily, model, chatbot], None, preprocess=False)
     
     gr.Examples(
-        ["What is 5G?", "What are the main adventages of 5G compared to 4G?", "What frequencies does 5G use?",  "Which organisations are responsible for the standardization of 5G?", 
+        ["What is 5G?", "What are its main adventages compared to 4G?", "What frequencies does it use?",  "Which organisations are responsible for its standardization?", 
          "What is OFDMA?", "What is the difference between OFDMA and OFDM?", "What are the main components of 5G core networks?", "What were the design principles of Massive MTC?"],
         prompt
     )
 
 #demo.launch()
 #demo.launch(share=True, share_server_address="gradio.componentsoft.ai:7000", share_server_protocol="https", auth=("Ericsson", "Torshamnsgatan21"), max_threads=20, show_error=True, state_session_capacity=20)
-demo.launch(share=True, share_server_address="gradio.componentsoft.ai:7000", share_server_protocol="https", auth=("Ericsson", "Torshamnsgatan21"), max_threads=20, show_error=True, favicon_path="/home/rconsole/GIT/AI-434/source/labfiles/data/favicon.ico", state_session_capacity=20)
+demo.launch(share=True, share_server_address="gradio.componentsoft.ai:7000", share_server_protocol="https", auth=("Ericsson", "Torshamnsgatan21"), max_threads=20, show_error=True, favicon_path="data/favicon.ico", state_session_capacity=20)
 
+# -
 
 
