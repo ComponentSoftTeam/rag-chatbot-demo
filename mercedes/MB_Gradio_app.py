@@ -10,7 +10,7 @@ import uuid
 import random
 import gradio as gr
 
-username = "Ericsson"
+username = "Mercedes"
 
 modelfamilies_model_dict = {
     "GPT": get_args(ChatBotConfig.OPENAI_MODELS),
@@ -67,7 +67,7 @@ callback = gr.CSVLogger()
 
 with gr.Blocks(title="CompSoft") as demo:
     session_id = gr.Textbox(value = uuid.uuid4, interactive=False, visible=False)
-    gr.Markdown("# Component Soft 5G RAG Demo")
+    gr.Markdown("# Mercedes 5G RAG Demo")
     #system_prompt = gr.Textbox(label="System prompt", value="You are a helpful, harmless and honest assistant.")
     with gr.Row():
         modelfamily = gr.Dropdown(list(modelfamilies_model_dict.keys()), label="Model family", value="Mistral")
@@ -77,9 +77,9 @@ with gr.Blocks(title="CompSoft") as demo:
         max_tokens = gr.Slider(label="Max tokens", minimum=100, maximum=2000, value=500, 
             info="Maximum number of generated tokens")"""
     with gr.Row():
-        chatbot=gr.Chatbot(label="CompSoft_5G_RAG", height=400, show_copy_button=True)
+        chatbot=gr.Chatbot(label="ComponentSoft_RAG", height=400, show_copy_button=True)
     with gr.Row():
-        prompt = gr.Textbox(label="Question", value="What is 5G?")
+        prompt = gr.Textbox(label="Question", value="What are the advantages of electrical motors?")
     with gr.Row():
         submit_btn_nostreaming = gr.Button("Answer")
         submit_btn_streaming = gr.Button("Answer with streaming")
@@ -100,14 +100,14 @@ with gr.Blocks(title="CompSoft") as demo:
     flag_btn.click(lambda *args: callback.flag(args), [modelfamily, model, chatbot], None, preprocess=False)
     
     gr.Examples(
-        ["What is 5G?", "What are its main adventages compared to 4G?", "What frequencies does it use?",  "Which organisations are responsible for its standardization?", 
-         "What is OFDMA?", "What is the difference between OFDMA and OFDM?", "What are the main components of 5G core networks?", "What were the design principles of Massive MTC?"],
+        ["What does electric drive means?", "What are the advantages of electrical motors?", "What are their main types?", "What is the difference between synchronous and asynchronous motors?",
+         "What are DC choppers?", "What are their main types?", "What are the limitations of stator voltage control?", "What is the difference between rotor resistance and reactance?", "What is rotor power factor?"],
         prompt
     )
 
 #demo.launch()
 #demo.launch(share=True, share_server_address="gradio.componentsoft.ai:7000", share_server_protocol="https", auth=("Ericsson", "Torshamnsgatan21"), max_threads=20, show_error=True, state_session_capacity=20)
-demo.launch(share=True, share_server_address="gradio.componentsoft.ai:7000", share_server_protocol="https", auth=("Ericsson", "Torshamnsgatan21"), max_threads=20, show_error=True, favicon_path="data/favicon.ico", state_session_capacity=20)
+demo.launch(share=True, share_server_address="gradio.componentsoft.ai:7000", share_server_protocol="https", auth=("Mercedes", "70372Stuttgart"), max_threads=20, show_error=True, favicon_path="data/favicon.ico", state_session_capacity=20)
 
 # -
 
