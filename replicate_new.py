@@ -195,10 +195,13 @@ class Replicate(LLM):
                 "Please install it with `pip install replicate`."
             )
 
+        version, owner, name, version_str = replicate_python.identifier._resolve(self.model)
+        model_str = f"{owner}/{name}"
+        #print(f"model_str, version_str = {model_str}, {version_str}") #by EE
+        
         # get the model and version
         if self.version_obj is None:
-            #print(f"Model = {self.model}") #by EE
-            model_str, version_str = self.model.split(":")
+            #model_str, version_str = self.model.split(":")
             model = replicate_python.models.get(model_str)
             self.version_obj = model.versions.get(version_str)
             #print(f"Modified_model = {model}") #by EE
@@ -215,14 +218,6 @@ class Replicate(LLM):
             )
 
             self.prompt_key = input_properties[0][0]
-
-        """print()
-        print(self.prompt_key)
-        print()
-        print(**self.model_kwargs)
-        print()
-        print(**kwargs)
-        print()"""
         
         input_: Dict = {
             self.prompt_key: prompt,
@@ -230,42 +225,16 @@ class Replicate(LLM):
             **kwargs,
         }
 
-        
-        ####################################
-        version, owner, name, version_id = replicate_python.identifier._resolve(self.model)
-        
-        """print()
-        print(owner)
-        print()
-        print(name)
-        print()
-        print(version_id)
-        print()
-        print(input_)
-        print()"""
 
-        prediction = replicate_python.models.predictions.create(
-            model=(owner, name), input=input_
-        )
-        #print(prediction)
-        #print()
-        return prediction
-        
-        """if version_id is not None:
-            return replicate_python.predictions.create(
-                version=version_id, input=input_
-            )
-        elif owner and name:
+        if name.startswith("llama-2-"):
             return replicate_python.models.predictions.create(
                 model=(owner, name), input=input_
+            )
+        elif owner and name:
+            return replicate_python.predictions.create(
+                version=self.version_obj, input=input_
             )
         else:
             raise ValueError(
                 f"Invalid argument: {ref}. Expected model, version, or reference in the format owner/name or owner/name:version"
-            )"""
-        #################################
-
-        
-        """return replicate_python.predictions.create(
-            version=self.version_obj, input=input_
-        )"""
+            )
