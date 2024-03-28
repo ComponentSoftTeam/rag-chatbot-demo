@@ -166,8 +166,12 @@ cython_debug/
 
 chroma/**
 !chroma/.gitkeep
+data
+!data/.gitkeep
 mercedes/chroma/**
 !mercedes/chroma/.gitkeep
 mercedes/chroma.mb/**
 !mercedes/chroma.mb/.gitkeep
+mercedes/data
+!mercedes/data/.gitkeep
 pyproject.toml
