@@ -26,6 +26,7 @@ ChatBot.store = {}
 def exec_prompt(chatbot, question, session_id, model_family = "Mistral", model="mistral-large"):
 
     question = question
+    if question == "": question = "I have no question"
     # get chain
     chain = ChatBot.get_chain(model_family=model_family, model=model)
     response = chain.invoke({"question": question}, config={"configurable": {"user_id": username, "conversation_id": session_id}})
@@ -43,6 +44,7 @@ def exec_prompt(chatbot, question, session_id, model_family = "Mistral", model="
 def exec_prompt_streaming(chatbot, question, session_id, model_family = "Mistral", model="mistral-large"):
 
     question = question
+    if question == "": question = "I have no question"
     # get chain
     chain = ChatBot.get_chain(model_family=model_family, model=model)
     chat_history = ChatBot.get_session_history(username, session_id)

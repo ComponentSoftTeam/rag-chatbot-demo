@@ -26,6 +26,7 @@ ChatBot.store = {}
 def exec_prompt(chatbot, question, session_id, model_family = "Mistral", model="mistral-large"):
 
     question = question
+    if question == "": question = "I have no question"
     # get chain
     chain = ChatBot.get_chain(model_family=model_family, model=model)
     response = chain.invoke({"question": question}, config={"configurable": {"user_id": username, "conversation_id": session_id}})
@@ -43,6 +44,7 @@ def exec_prompt(chatbot, question, session_id, model_family = "Mistral", model="
 def exec_prompt_streaming(chatbot, question, session_id, model_family = "Mistral", model="mistral-large"):
 
     question = question
+    if question == "": question = "I have no question"
     # get chain
     chain = ChatBot.get_chain(model_family=model_family, model=model)
     chat_history = ChatBot.get_session_history(username, session_id)
@@ -67,7 +69,7 @@ callback = gr.CSVLogger()
 
 with gr.Blocks(title="CompSoft") as demo:
     session_id = gr.Textbox(value = uuid.uuid4, interactive=False, visible=False)
-    gr.Markdown("# Mercedes 5G RAG Demo")
+    gr.Markdown("# Mercedes RAG Demo")
     #system_prompt = gr.Textbox(label="System prompt", value="You are a helpful, harmless and honest assistant.")
     with gr.Row():
         modelfamily = gr.Dropdown(list(modelfamilies_model_dict.keys()), label="Model family", value="Mistral")
