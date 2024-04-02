@@ -176,6 +176,12 @@ mercedes/chroma/**
 !mercedes/chroma/.gitkeep
 mercedes/data
 !mercedes/data/.gitkeep
-mercedes/chroma.mb/**
-!mercedes/chroma.mb/.gitkeep
+nokia/chroma/**
+!nokia/chroma/.gitkeep
+nokia/data
+!nokia/data/.gitkeep
+magyartelekom/chroma/**
+!magyartelekom/chroma/.gitkeep
+magyartelekom/data
+!magyartelekom/data/.gitkeep
 pyproject.toml
