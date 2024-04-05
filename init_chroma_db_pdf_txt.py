@@ -101,8 +101,8 @@ def main():
 
     #docs = parse_pdf(path_book1, "https://www.mbusa.com/content/dam/mb-nafta/us/owners/manuals/2022/OperatorManuals/S-Sedan%20Owners%20Manual.pdf", page_offset=0)
     #docs = parse_txt(path_book1_txt, "https://www.mbusa.com/content/dam/mb-nafta/us/owners/manuals/2022/OperatorManuals/S-Sedan%20Owners%20Manual.pdf", page_offset=24)
-    #docs = parse_pdf(path_book2, "https://mrcet.com/downloads/digital_notes/EEE/31082020/Electrical%20Drives.pdf", page_offset=4)
-    docs = parse_pdf(path_book3, "https://ocw.mit.edu/courses/6-685-electric-machines-fall-2013/6.685-fall-2013.zip", page_offset=0)
+    docs = parse_pdf(path_book2, "https://mrcet.com/downloads/digital_notes/EEE/31082020/Electrical%20Drives.pdf", page_offset=4)
+    #docs = parse_pdf(path_book3, "https://ocw.mit.edu/courses/6-685-electric-machines-fall-2013/6.685-fall-2013.zip", page_offset=0)
 
     openai_db = Chroma.from_documents(
         docs, 
