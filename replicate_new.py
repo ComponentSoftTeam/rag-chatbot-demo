@@ -224,6 +224,10 @@ class Replicate(LLM):
             **self.model_kwargs,
             **kwargs,
         }
+        #print(f"version_obj = {self.version_obj}\n") #by EE
+        #print(f"self.prompt_key = {self.prompt_key}\n") #by EE
+        #print(f"input_properties = {input_properties}\n")  #by EE
+        #print(f"input_ prompt = {input_['prompt']}\n") #by EE
 
 
         if name.startswith("llama-2-"):
