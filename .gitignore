@@ -163,6 +163,7 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+*/*nohup.out
 
 chroma/**
 !chroma/.gitkeep
@@ -184,4 +185,8 @@ magyartelekom/chroma/**
 !magyartelekom/chroma/.gitkeep
 magyartelekom/data
 !magyartelekom/data/.gitkeep
-pyproject.toml
+*/*nohup.out
+*/chroma/**
+!*/chroma/.gitkeep
+*/data
+!*/data/.gitkeep
