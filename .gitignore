@@ -188,5 +188,7 @@ magyartelekom/data
 */*nohup.out
 */chroma/**
 !*/chroma/.gitkeep
-*/data
+*/data/
 !*/data/.gitkeep
+*/__pycache__/
+*/flagged_data_points/
