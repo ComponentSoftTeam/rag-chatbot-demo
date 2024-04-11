@@ -194,7 +194,7 @@ class ChatBot:
         #   question: str                    #
         # OUTPUTS:                           #
         #   standalone_question: str         #
-        #   chat_history: str                #
+        #   chat_history: ChatMessageHistory #
         #   question: str                    #
         #####################################x
         standalone_question = RunnableParallel(
@@ -210,16 +210,16 @@ class ChatBot:
         #########################################
         # INPUTS:                               #
         #   standalone_question: str            #
-        #   chat_history: str                   #
+        #   chat_history: ChatMessageHistory    #
         #   question: str                       #
         # OUTPUTS:                              #
         #   context: str                        #
-        #   chat_history: str                   #
+        #   chat_history: ChatMessageHistory    #
         #   question: str                       #
         #########################################
         question_context = {
             "context": (
-                itemgetter("standalone_question")
+                lambda x: x["standalone_question"] # itemgetter("standalone_question")
                 | retriever
                 | cls.combine_documents
             ),
