@@ -165,8 +165,11 @@ cython_debug/
 
 */*nohup.out
 
-chroma/**
+**/chroma/**
 !chroma/.gitkeep
+.vscode/
+
 *nohup.out
 __pycache__/
 flagged_data_points/
+

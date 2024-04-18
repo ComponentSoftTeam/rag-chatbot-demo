@@ -57,7 +57,7 @@ class RAG(VectorStore):
     ) -> List[Document]:
         results = self._langchain_chroma.similarity_search(query, k, **kwargs)
         docs = [doc.page_content for doc in results]
-
+        # print(f"\n query = {query}, docs = {docs}\n") # by EE
         pairs = []
         for doc in docs:
             pairs.append([query, doc])
