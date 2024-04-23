@@ -367,7 +367,8 @@ if __name__ == "__main__":
         #print(history)
 
         # get question
-        question = input("\nEnter your question: ")
+        question = input("\n\nEnter your question: ")
+        print()
         if question == "exit": break
 
         response = chain.stream({"question": question}, config={"configurable": user_config})
