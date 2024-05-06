@@ -38,19 +38,21 @@ class ChatBotConfig:
     MODEL_FAMILY = Literal["GPT", "Mistral", "Llama"]
 
     OPENAI_MODELS = Literal["gpt-3.5-turbo", "gpt-4"]
-    MISTRAL_MODELS = Literal["mistral-tiny", "mistral-small", "mistral-medium",  "mistral-large"]
+    MISTRAL_MODELS = Literal["mistral-tiny", "mistral-small", "mistral-large",
+                             #"mistral-medium", 
+                             "open-mistral-7b", "open-mixtral-8x7b", "open-mixtral-8x22b"]
     __LLAMA_MODEL_VERSIONS = {
         #"llama-2-7b-chat": "13c3cdee13ee059ab779f0291d29054dab00a47dad8261375654de5540165fb0",
         #"llama-2-13b-chat": "f4e2de70d66816a838a89eeeb621910adffb0dd0baba3976c96980970978018d",
         #"llama-2-70b-chat": "02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3",
-        "llama-2-7b-chat": "accounts/fireworks/models/llama-v2-7b-chat",
-        "llama-2-13b-chat": "accounts/fireworks/models/llama-v2-13b-chat",
-        "llama-2-70b-chat": "accounts/fireworks/models/llama-v2-70b-chat",
+        #"llama-2-7b-chat": "accounts/fireworks/models/llama-v2-7b-chat",
+        #"llama-2-13b-chat": "accounts/fireworks/models/llama-v2-13b-chat",
+        #"llama-2-70b-chat": "accounts/fireworks/models/llama-v2-70b-chat",
         "llama-3-8b-instruct": "accounts/fireworks/models/llama-v3-8b-instruct",
         "llama-3-70b-instruct": "accounts/fireworks/models/llama-v3-70b-instruct",
     }
     
-    LLAMA_MODELS = Literal["llama-2-7b-chat", "llama-2-13b-chat", "llama-2-70b-chat", "llama-3-8b-instruct", "llama-3-70b-instruct"]
+    LLAMA_MODELS = Literal["llama-3-8b-instruct", "llama-3-70b-instruct"]
     MODELS = Union[OPENAI_MODELS, MISTRAL_MODELS, LLAMA_MODELS]
 
     def get_model_name(self, model_family: MODEL_FAMILY, model: MODELS) -> str:
@@ -67,6 +69,12 @@ class ChatBotConfig:
                         return "mistral-medium-latest"
                     case "mistral-large":
                         return "mistral-large-latest"
+                    case "open-mistral-7b":
+                        return "open-mistral-7b"
+                    case "open-mixtral-8x7b":
+                        return "open-mixtral-8x7b"
+                    case "open-mixtral-8x22b":
+                        return "open-mixtral-8x22b"
                     case _: 
                         raise ValueError(f"Invalid model: {model}. Must be one of {get_args(ChatBotConfig.MISTRAL_MODELS)}")
             

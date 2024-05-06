@@ -23,12 +23,12 @@ temperature = []
 max_tokens = []
 ChatBot.store = {}
 
-def exec_prompt(chatbot, question, session_id, model_family = "Mistral", model="mistral-large"):
+def exec_prompt(chatbot, question, session_id, model_family = "Mistral", model_type="mistral-large"):
 
     question = question
     if question == "": question = "I have no question"
     # get chain
-    chain = ChatBot.get_chain(model_family=model_family, model=model)
+    chain = ChatBot.get_chain(model_family=model_family, model_type=model_type)
     response = chain.invoke({"question": question}, config={"configurable": {"user_id": username, "conversation_id": session_id}})
     chat_history = ChatBot.get_session_history(username, session_id)
 
@@ -41,12 +41,12 @@ def exec_prompt(chatbot, question, session_id, model_family = "Mistral", model="
 
     return history_pairs, "" 
 
-def exec_prompt_streaming(chatbot, question, session_id, model_family = "Mistral", model="mistral-large"):
+def exec_prompt_streaming(chatbot, question, session_id, model_family = "Mistral", model_type="mistral-large"):
 
     question = question
     if question == "": question = "I have no question"
     # get chain
-    chain = ChatBot.get_chain(model_family=model_family, model=model)
+    chain = ChatBot.get_chain(model_family=model_family, model_type=model_type)
     chat_history = ChatBot.get_session_history(username, session_id)
     response = chain.stream({"question": question}, config={"configurable": {"user_id": username, "conversation_id": session_id}})
 
@@ -73,7 +73,7 @@ with gr.Blocks(title="CompSoft") as demo:
     #system_prompt = gr.Textbox(label="System prompt", value="You are a helpful, harmless and honest assistant.")
     with gr.Row():
         modelfamily = gr.Dropdown(list(modelfamilies_model_dict.keys()), label="Model family", value="Mistral")
-        model = gr.Dropdown(list(modelfamilies_model_dict["Mistral"]), label="Model", value="mistral-large")       
+        model_type = gr.Dropdown(list(modelfamilies_model_dict["Mistral"]), label="Model", value="mistral-large")       
         """temperature = gr.Slider(label="Temperature:", minimum=0, maximum=2, value=1,
             info="LLM generation temperature")
         max_tokens = gr.Slider(label="Max tokens", minimum=100, maximum=2000, value=500, 
@@ -89,17 +89,17 @@ with gr.Blocks(title="CompSoft") as demo:
         flag_btn = gr.Button("Flag")
     
     
-    @modelfamily.change(inputs=modelfamily, outputs=[model])
+    @modelfamily.change(inputs=modelfamily, outputs=[model_type])
     def update_modelfamily(modelfamily):
-        model = list(modelfamilies_model_dict[modelfamily])
-        return gr.Dropdown(choices=model, value=model[0], interactive=True)
+        model_type = list(modelfamilies_model_dict[modelfamily])
+        return gr.Dropdown(choices=model_type, value=model_type[0], interactive=True)
 
-    submit_btn_streaming.click(exec_prompt_streaming, inputs=[chatbot, prompt, session_id, modelfamily, model], outputs=[chatbot, prompt])
-    submit_btn_nostreaming.click(exec_prompt, inputs=[chatbot, prompt, session_id, modelfamily, model], outputs=[chatbot, prompt])
+    submit_btn_streaming.click(exec_prompt_streaming, inputs=[chatbot, prompt, session_id, modelfamily, model_type], outputs=[chatbot, prompt])
+    submit_btn_nostreaming.click(exec_prompt, inputs=[chatbot, prompt, session_id, modelfamily, model_type], outputs=[chatbot, prompt])
     clear_btn.click(lambda session_id: ChatBot.del_session_history(username, session_id), [session_id], None, preprocess=False)
 
-    callback.setup([modelfamily, model, chatbot], "flagged_data_points")
-    flag_btn.click(lambda *args: callback.flag(args), [modelfamily, model, chatbot], None, preprocess=False)
+    callback.setup([modelfamily, model_type, chatbot], "flagged_data_points")
+    flag_btn.click(lambda *args: callback.flag(args), [modelfamily, model_type, chatbot], None, preprocess=False)
     
     gr.Examples(
         ["What is 5G?", "What are its main adventages compared to 4G?", "What frequencies does it use?",  "Which organisations are responsible for its standardization?", 
