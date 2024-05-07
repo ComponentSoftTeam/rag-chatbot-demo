@@ -31,6 +31,7 @@ from langchain_mistralai.chat_models import ChatMistralAI
 from langsmith import Client
 import os
 os.environ["LANGCHAIN_PROJECT"] = "RAG Demo"
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
 client = Client()
 
 
