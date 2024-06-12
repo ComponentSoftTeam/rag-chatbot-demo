@@ -38,14 +38,11 @@ client = Client()
 class ChatBotConfig:
     MODEL_FAMILY = Literal["GPT", "Mistral", "Llama"]
 
-    OPENAI_MODELS = Literal["gpt-3.5-turbo", "gpt-4"]
-    MISTRAL_MODELS = Literal["mistral-tiny", "mistral-small", "mistral-large",
-                             #"mistral-medium", 
+    OPENAI_MODELS = Literal["gpt-3.5-turbo", "gpt-4o", "gpt-4-turbo"]
+    MISTRAL_MODELS = Literal["mistral-small", "mistral-large",
+                             #"mistral-tiny", "mistral-medium", 
                              "open-mistral-7b", "open-mixtral-8x7b", "open-mixtral-8x22b"]
     __LLAMA_MODEL_VERSIONS = {
-        #"llama-2-7b-chat": "13c3cdee13ee059ab779f0291d29054dab00a47dad8261375654de5540165fb0",
-        #"llama-2-13b-chat": "f4e2de70d66816a838a89eeeb621910adffb0dd0baba3976c96980970978018d",
-        #"llama-2-70b-chat": "02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3",
         #"llama-2-7b-chat": "accounts/fireworks/models/llama-v2-7b-chat",
         #"llama-2-13b-chat": "accounts/fireworks/models/llama-v2-13b-chat",
         #"llama-2-70b-chat": "accounts/fireworks/models/llama-v2-70b-chat",
