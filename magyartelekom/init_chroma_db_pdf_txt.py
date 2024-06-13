@@ -1,1 +1,0 @@
-../init_chroma_db_pdf_txt.py
