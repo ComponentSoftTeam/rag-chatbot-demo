@@ -1,195 +1,224 @@
+
+# https://huggingface.co/mistralai/Mixtral-8x7B-v0.1
+
+import os
 import uuid
+from enum import Enum
 from operator import itemgetter
-from typing import Dict, Literal, Tuple, Union, get_args, overload
+from typing import Dict, Iterable, Literal, Tuple, Union, get_args, overload
+
 from dotenv import load_dotenv
-
-load_dotenv()
-
-from langchain.memory import ChatMessageHistory
-from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage, get_buffer_string
-from langchain_core.documents import Document
-from langchain_core.runnables import ConfigurableFieldSpec, RunnableLambda, RunnableParallel, RunnablePassthrough
-from langchain_core.vectorstores import VectorStore
+from langchain_anthropic import ChatAnthropic
+from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory
+from langchain_core.documents import Document
+from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_core.messages import get_buffer_string
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.output_parsers.string import StrOutputParser
+from langchain_core.runnables import (ConfigurableFieldSpec, RunnableLambda,
+                                      RunnableParallel, RunnablePassthrough)
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_community.vectorstores import Chroma
-from langchain_openai import OpenAIEmbeddings
+from langchain_core.vectorstores import VectorStore
+from langchain_fireworks.chat_models import ChatFireworks
+from langchain_google_genai.chat_models import ChatGoogleGenerativeAI
+from langchain_mistralai.chat_models import ChatMistralAI
+from langchain_openai import ChatOpenAI
 from langchain_openai.chat_models import ChatOpenAI
-#from langfuse.callback import CallbackHandler
-
-from rag_utils import RAG, EmbeddingType
 
 from prompts import ANSWER_PROMPT, CONDENSE_QUESTION_PROMPT, DOCUMENT_PROMPT
+from rag_utils import RAG, EmbeddingType
+
+# TODO: Move this does not belong here, this is a lib
+load_dotenv()
+
+class ModelFamily(Enum):
+    """Represents the model families available for selection."""
+
+    LLAMA = 'Llama'
+    GPT = 'GPT'
+    MISTRAL = 'Mistral'
+    GEMINI = 'Gemini'
+    CLAUDE = 'Claude'
+
+class ModelName(Enum):
+    """
+    Enum representing different model names.
+    Each model name is associated with a model family and a model identifier.
+    """
+
+    LLAMA3_70B_PROMPTING = (ModelFamily.LLAMA, 'llama-3-70b-prompting')
+    LLAMA_3_70B_FIREFUNCTION_V2 = (ModelFamily.LLAMA, 'Llama-3-70b-firefunction-v2')
+    GPT_3_5_TURBO = (ModelFamily.GPT, 'gpt-3.5-turbo')
+    GPT_4O = (ModelFamily.GPT, 'gpt-4o')
+    GPT_4_TURBO = (ModelFamily.GPT, 'gpt-4-turbo')
+    MISTRAL_LARGE = (ModelFamily.MISTRAL, 'mistral-large')
+    OPEN_MIXTRAL_8X22B = (ModelFamily.MISTRAL, 'open-mixtral-8x22b')
+    MISTRAL_SMALL = (ModelFamily.MISTRAL, 'mistral-small')
+    GEMINI_1_5_FLASH = (ModelFamily.GEMINI, 'gemini-1.5-flash')
+    GEMINI_1_5_PRO = (ModelFamily.GEMINI, 'gemini-1.5-pro')
+    CLAUDE_3_HAIKU = (ModelFamily.CLAUDE, 'claude-3-haiku')
+    CLAUDE_3_SONNET = (ModelFamily.CLAUDE, 'claude-3-sonnet')
+    CLAUDE_3_OPUS = (ModelFamily.CLAUDE, 'claude-3-opus')
 
 
-#from langchain_community.llms import Replicate
-from langchain_fireworks.chat_models import ChatFireworks
-from langchain_openai import ChatOpenAI
-from langchain_mistralai.chat_models import ChatMistralAI
+def get_llm(model_name: ModelName, temperature: float, max_new_tokens: int) -> BaseChatModel:
+    """
+    Returns a chat model based on the specified model name, temperature, and maximum number of new tokens.
 
-from langsmith import Client
-import os
-os.environ["LANGCHAIN_PROJECT"] = "RAG Demo"
-os.environ["LANGCHAIN_TRACING_V2"] = "true"
-client = Client()
+    Args:
+        model_name (ModelName): The name of the model to use.
+        temperature (float): The temperature parameter for generating responses, [0, 2].
+        max_new_tokens (int): The maximum number of new tokens to generate in the response.
+
+    Returns:
+        BaseChatModel: The chat model based on the specified parameters.
+
+    Raises:
+        RuntimeError: If an invalid model name is provided.
+    """
+
+    match model_name:
+        case ModelName.LLAMA3_70B_PROMPTING: 
+            return ChatFireworks(
+                name="accounts/fireworks/models/llama-v3-70b-instruct",
+                max_tokens = max_new_tokens,
+                temperature = temperature,
+            )
+
+        case ModelName.LLAMA_3_70B_FIREFUNCTION_V2:
+            return ChatFireworks(
+                name="accounts/fireworks/models/firefunction-v1",
+                max_tokens = max_new_tokens,
+                temperature = temperature,
+            )
+
+        case ModelName.GPT_3_5_TURBO:
+            return ChatOpenAI(
+                model="gpt-3.5-turbo",
+                max_tokens = max_new_tokens,
+                temperature = temperature,
+            )
+
+        case ModelName.GPT_4O:
+            return ChatOpenAI(
+                model="gpt-4o",
+                max_tokens = max_new_tokens,
+                temperature = temperature,
+            )
+
+        case ModelName.GPT_4_TURBO:
+            return ChatOpenAI(
+                model="gpt-4-turbo",
+                max_tokens = max_new_tokens,
+                temperature = temperature,
+            )        
+
+        case ModelName.MISTRAL_LARGE:
+            return ChatMistralAI(
+                name="mistral-large-latest",
+                max_tokens = max_new_tokens,
+                temperature = temperature,
+            )
+
+        case ModelName.OPEN_MIXTRAL_8X22B:
+            return ChatMistralAI(
+                name="open-mixtral-8x22b",
+                max_tokens = max_new_tokens,
+                temperature = temperature,
+            )
+
+        case ModelName.MISTRAL_SMALL:
+            return ChatMistralAI(
+                name="mistral-small-latest",
+                max_tokens = max_new_tokens,
+                temperature = temperature,
+            )
+
+        case ModelName.GEMINI_1_5_FLASH:
+            return ChatGoogleGenerativeAI(
+                model="gemini-1.5-flash",
+                max_output_tokens = max_new_tokens,
+                temperature = temperature,
+            )
+
+        case ModelName.GEMINI_1_5_PRO:
+            return ChatGoogleGenerativeAI(
+                model="gemini-1.5-pro",
+                max_output_tokens = max_new_tokens,
+                temperature = temperature,
+            )
+
+        case ModelName.CLAUDE_3_HAIKU:
+            return ChatAnthropic(
+                model_name="claude-3-haiku-20240307",
+                max_tokens = max_new_tokens,
+                temperature = temperature,
+            )    
+
+        case ModelName.CLAUDE_3_SONNET:
+            return ChatAnthropic(
+                model_name="claude-3-5-sonnet-20240620",
+                max_tokens = max_new_tokens,
+                temperature = temperature,
+            )
+
+        case ModelName.CLAUDE_3_OPUS:
+            return ChatAnthropic(
+                model_name="claude-3-opus-20240229",
+                max_tokens = max_new_tokens,
+                temperature = temperature,
+            )
+
+        case _:
+            raise RuntimeError(f"Invalid input model_name: {model_name}")
 
 
-class ChatBotConfig:
-    MODEL_FAMILY = Literal["GPT", "Mistral", "Llama"]
-
-    OPENAI_MODELS = Literal["gpt-3.5-turbo", "gpt-4o", "gpt-4-turbo"]
-    MISTRAL_MODELS = Literal["mistral-small", "mistral-large",
-                             #"mistral-tiny", "mistral-medium", 
-                             "open-mistral-7b", "open-mixtral-8x7b", "open-mixtral-8x22b"]
-    __LLAMA_MODEL_VERSIONS = {
-        #"llama-2-7b-chat": "accounts/fireworks/models/llama-v2-7b-chat",
-        #"llama-2-13b-chat": "accounts/fireworks/models/llama-v2-13b-chat",
-        #"llama-2-70b-chat": "accounts/fireworks/models/llama-v2-70b-chat",
-        "llama-3-8b-instruct": "accounts/fireworks/models/llama-v3-8b-instruct",
-        "llama-3-70b-instruct": "accounts/fireworks/models/llama-v3-70b-instruct",
-    }
-    
-    LLAMA_MODELS = Literal["llama-3-8b-instruct", "llama-3-70b-instruct"]
-    MODELS = Union[OPENAI_MODELS, MISTRAL_MODELS, LLAMA_MODELS]
-
-    def get_model_name(self, model_family: MODEL_FAMILY, model: MODELS) -> str:
-        match model_family:
-            case "GPT":
-                return model
-            case "Mistral":
-                match model:
-                    case "mistral-tiny":
-                        return "mistral-tiny"
-                    case "mistral-small":
-                        return "mistral-small-latest"
-                    case "mistral-medium":
-                        return "mistral-medium-latest"
-                    case "mistral-large":
-                        return "mistral-large-latest"
-                    case "open-mistral-7b":
-                        return "open-mistral-7b"
-                    case "open-mixtral-8x7b":
-                        return "open-mixtral-8x7b"
-                    case "open-mixtral-8x22b":
-                        return "open-mixtral-8x22b"
-                    case _: 
-                        raise ValueError(f"Invalid model: {model}. Must be one of {get_args(ChatBotConfig.MISTRAL_MODELS)}")
-            
-            case "Llama":
-                #return f"meta/{model}:{ChatBotConfig.__LLAMA_MODEL_VERSIONS[model]}"
-                return f"{ChatBotConfig.__LLAMA_MODEL_VERSIONS[model]}"
-            case _: 
-                raise ValueError(f"Invalid model family: {model_family}. Must be one of {get_args(ChatBotConfig.MODEL_FAMILY)}")
-
-    @overload
-    def __init__(cls, model_family: Literal["GPT"], model: OPENAI_MODELS): ...
-
-    @overload
-    def __init__(cls, model_family: Literal["Mistral"], model: MISTRAL_MODELS): ...
-
-    @overload
-    def __init__(cls, model_family: Literal["Llama"], model: LLAMA_MODELS): ...
-
-    def __init__(self, model_family: MODEL_FAMILY, model: MODELS):
-        self.model_family = model_family
-        self.model = self.get_model_name(model_family, model)
-
-        match model_family:
-            case "GPT":
-                self.embedding_type = EmbeddingType.OPEN_AI
-                if model not in get_args(ChatBotConfig.OPENAI_MODELS):
-                    raise ValueError(f"Invalid model: {model}. Must be one of {get_args(ChatBotConfig.OPENAI_MODELS)}")
-            case "Mistral":
-                self.embedding_type = EmbeddingType.MISTRAL
-                if model not in get_args(ChatBotConfig.MISTRAL_MODELS):
-                    raise ValueError(f"Invalid model: {model}. Must be one of {get_args(ChatBotConfig.MISTRAL_MODELS)}")
-            case "Llama":
-                self.embedding_type = EmbeddingType.SENTENCE_TRANSFORMER
-                if model not in get_args(ChatBotConfig.LLAMA_MODELS):
-                    raise ValueError(f"Invalid model: {model}. Must be one of {get_args(ChatBotConfig.LLAMA_MODELS)}")
-            case _: 
-                raise ValueError(f"Invalid model family: {model_family}. Must be one of {get_args(ChatBotConfig.MODEL_FAMILY)}")
-
-    #def get_condensation_model(self) -> Union[ChatOpenAI, ChatMistralAI, Replicate]:
-    def get_condensation_model(self) -> Union[ChatOpenAI, ChatMistralAI, ChatFireworks]:
-        match self.model_family:
-            case "GPT":
-                return ChatOpenAI(
-                    model=self.model,
-                    temperature=0,
-                    max_tokens=2000,
-                )
-
-            case "Mistral":
-                return ChatMistralAI(
-                    model=self.model,
-                    temperature=0,
-                    max_tokens=2000,
-                )
-
-            case "Llama":
-                """return Replicate(
-                    model=self.model,
-                    model_kwargs={"temperature": 0.01, "max_new_tokens": 2000, "prompt_template": f"<s>[INST] <<SYS>> {{system_prompt}} <</SYS>>\n {{prompt}} [/INST]\n\nSure, here is a rephrased standalone question based on the original conversation: "},
-                )"""
-                return ChatFireworks(
-                    model=self.model,
-                    temperature=0.02,
-                    max_tokens=2000,            
-                )
-                
-            case _: 
-                raise ValueError(f"Invalid model family: {self.model_family}. Must be one of {get_args(ChatBotConfig.MODEL_FAMILY)}")
-
-    def get_chat_model(self) -> Union[ChatOpenAI, ChatMistralAI, ChatFireworks]:
-        match self.model_family:
-            case "GPT":
-                return ChatOpenAI(
-                    model=self.model,
-                    temperature=0.7,
-                    max_tokens=2000,
-                )
-
-            case "Mistral":
-                return ChatMistralAI(
-                    model=self.model,
-                    temperature=0.7,
-                    max_tokens=2000,
-                )
-
-            case "Llama":
-                return ChatFireworks(
-                    model=self.model,
-                    temperature=0.7,
-                    max_tokens=2000,            
-                )
-                
-                """return Replicate(
-                    model=self.model,
-                    model_kwargs={"temperature": 0.01, "max_new_tokens": 2000, "prompt_template": f"<s>[INST] <<SYS>> {{system_prompt}} <</SYS>>\n {{prompt}} [/INST]\n\nThank you for the question!  "},
-                )"""
-        
-            case _: 
-                raise ValueError(f"Invalid model family: {self.model_family}. Must be one of {get_args(ChatBotConfig.MODEL_FAMILY)}")
-
+model_by_families: dict[str, list[str]] = {family.value: [] for family in ModelFamily}
+for model in ModelName:
+    family, name = model.value
+    model_by_families[family.value].append(name)
 
 class ChatBot:
-    
     VECTOR_STORES = {
         EmbeddingType.OPEN_AI: RAG(embedding_type=EmbeddingType.OPEN_AI),
-        EmbeddingType.SENTENCE_TRANSFORMER: RAG(embedding_type=EmbeddingType.SENTENCE_TRANSFORMER),
+        EmbeddingType.SENTENCE_TRANSFORMER: RAG( embedding_type=EmbeddingType.SENTENCE_TRANSFORMER),
         EmbeddingType.MISTRAL: RAG(embedding_type=EmbeddingType.MISTRAL),
     }
 
     store: Dict[Tuple[str, str], BaseChatMessageHistory] = {}
 
     @staticmethod
-    def get_session_history(user_id: str, conversation_id: str) -> BaseChatMessageHistory:
+    def get_condensation_model(model_name: ModelName, max_new_tokens: int) -> BaseChatModel:
+        return get_llm(model_name=model_name, max_new_tokens=max_new_tokens, temperature=0.02)
+
+
+    @staticmethod
+    def get_chat_model(model_name: ModelName, max_new_tokens: int) -> BaseChatModel:
+        return get_llm(model_name=model_name, max_new_tokens=max_new_tokens, temperature=0.7)
+
+    @staticmethod
+    def get_embedding_type(model_family: ModelFamily) -> EmbeddingType:
+        match model_family:
+            case ModelFamily.LLAMA:
+                return EmbeddingType.SENTENCE_TRANSFORMER
+            case ModelFamily.GPT:
+                return EmbeddingType.OPEN_AI
+            case ModelFamily.MISTRAL:
+                return EmbeddingType.MISTRAL
+            case ModelFamily.GEMINI:
+                return EmbeddingType.OPEN_AI
+            case ModelFamily.CLAUDE:
+                return EmbeddingType.OPEN_AI
+
+    @staticmethod
+    def get_session_history(
+        user_id: str, conversation_id: str
+    ) -> BaseChatMessageHistory:
         if (user_id, conversation_id) not in ChatBot.store:
             ChatBot.store[(user_id, conversation_id)] = ChatMessageHistory()
         return ChatBot.store[(user_id, conversation_id)]
-   
+
     @staticmethod
     def del_session_history(user_id: str, conversation_id: str) -> None:
         if (user_id, conversation_id) in ChatBot.store:
@@ -204,7 +233,7 @@ class ChatBot:
         return DOCUMENT_PROMPT.format(**document_info)
 
     @staticmethod
-    def combine_documents(docs, document_separator="\n\n"):
+    def combine_documents(docs: list[Document], document_separator="\n\n") -> str:
         doc_strings = [ChatBot.format_document(doc) for doc in docs]
         context = document_separator.join(doc_strings)
         return context or "No relevant context found."
@@ -214,13 +243,12 @@ class ChatBot:
         return cls.VECTOR_STORES[embedding_type]
 
     @classmethod
-    def construct_chain(cls, config: ChatBotConfig):
-        vector_store = cls.get_vector_store(config.embedding_type)
+    def construct_chain(cls, model_name: ModelName) -> RunnableLambda:
+        model_family, _ = model_name.value
+        embedding_type = cls.get_embedding_type(model_family)
+        vector_store = cls.get_vector_store(embedding_type)
         retriever = vector_store.as_retriever()
-        #print(f"Itt még jó: {config.model}") # by EE
-        #print(config.get_condensation_model())
-        #print(RunnablePassthrough.assign(chat_history=lambda x: get_buffer_string(x["chat_history"])))
-        #print("\n\n")
+
         #####################################x
         # INPUTS:                            #
         #   chat_history: ChatMessageHistory #
@@ -231,15 +259,16 @@ class ChatBot:
         #   question: str                    #
         #####################################x
         standalone_question = RunnableParallel(
-            standalone_question=RunnablePassthrough.assign(chat_history=lambda x: get_buffer_string(x["chat_history"]))
+            standalone_question=RunnablePassthrough.assign(
+                chat_history=lambda x: get_buffer_string(x["chat_history"])
+            )
             | CONDENSE_QUESTION_PROMPT
-            | config.get_condensation_model()
+            | cls.get_condensation_model(model_name, max_new_tokens=256)
             | StrOutputParser(),
             question=lambda x: x["question"],
             chat_history=lambda x: x["chat_history"],
         )
-        
-        
+
         #########################################
         # INPUTS:                               #
         #   standalone_question: str            #
@@ -252,15 +281,11 @@ class ChatBot:
         #########################################
         question_context = {
             "context": (
-                #lambda x: x["standalone_question"] # itemgetter("standalone_question")
-                itemgetter("standalone_question")
-                | retriever
-                | cls.combine_documents
+                itemgetter("standalone_question") | retriever | cls.combine_documents
             ),
             "chat_history": lambda x: x["chat_history"],
-            "question": lambda x: x["question"]
+            "question": lambda x: x["question"],
         }
-
 
         ##########################################
         # INPUTS:                                #
@@ -273,7 +298,7 @@ class ChatBot:
             standalone_question
             | question_context
             | ANSWER_PROMPT
-            | config.get_chat_model()
+            | cls.get_chat_model(model_name, max_new_tokens=512)
             | StrOutputParser()
         )
 
@@ -313,43 +338,17 @@ class ChatBot:
         )
 
         return with_message_history
-    
 
-    chains: Dict[Tuple[EmbeddingType, str], RunnableLambda] = None
-
-
-    @overload
-    @classmethod
-    def get_chain(cls, model_family: Literal["GPT"], model: ChatBotConfig.OPENAI_MODELS): ...
-
-    @overload
-    @classmethod
-    def get_chain(cls, model_family: Literal["Mistral"], model: ChatBotConfig.MISTRAL_MODELS): ...
-
-    @overload
-    @classmethod
-    def get_chain(cls, model_family: Literal["Llama"], model: ChatBotConfig.LLAMA_MODELS): ...
+    chains: Dict[ModelName, RunnableLambda] | None = None
 
     @classmethod
-    def get_chain(cls, model_family: ChatBotConfig.MODEL_FAMILY, model_type: ChatBotConfig.MODELS):
+    def get_chain(
+        cls, model_name: ModelName
+    ):
         if not cls.chains:
-            settings = [
-                ChatBotConfig("GPT", model) for model in get_args(ChatBotConfig.OPENAI_MODELS)
-            ] + [
-                ChatBotConfig("Mistral", model) for model in get_args(ChatBotConfig.MISTRAL_MODELS)
-            ] + [
-                ChatBotConfig("Llama", model) for model in get_args(ChatBotConfig.LLAMA_MODELS)
-            ]
-            #print(settings) # by EE
-            #print("\n\n")
-            cls.chains = {
-                (conf.embedding_type, conf.model): ChatBot.construct_chain(conf)
-                for conf in settings
-            } 
+            cls.chains = { m_name: ChatBot.construct_chain(m_name) for m_name in ModelName }
 
-
-        settings = ChatBotConfig(model_family, model_type)
-        return cls.chains[(settings.embedding_type, settings.model)]
+        return cls.chains[model_name]
 
 
 if __name__ == "__main__":
@@ -358,34 +357,37 @@ if __name__ == "__main__":
         "conversation_id": uuid.uuid4().hex,
     }
 
-    
     # get chain
-    Model_family = "Llama"
-    Model_type = "llama-2-7b-chat"
-    chain = ChatBot.get_chain(Model_family, Model_type)
-    
+    model_name = ModelName(ModelFamily.GPT, "gpt-3.5-turbo")
+    chain = ChatBot.get_chain(model_name)
+
     print(f"UserId = {user_config['conversation_id']}")
-    print(f"Model = {Model_family}/{Model_type}")
+    print(f"Model = {model_name}")
 
     while True:
         # print history
-        history = ChatBot.get_session_history(user_config["user_id"], user_config["conversation_id"])
-        #print(history)
+        history = ChatBot.get_session_history(
+            user_config["user_id"], user_config["conversation_id"]
+        )
+        # print(history)
 
         # get question
         question = input("\n\nEnter your question: ")
         print()
-        if question == "exit": break
+        if question == "exit":
+            break
 
-        response = chain.stream({"question": question}, config={"configurable": user_config})
+        response = chain.stream(
+            {"question": question}, config={"configurable": user_config}
+        )
 
-        if response == "exit": break
-        
+        if response == "exit":
+            break
+
         for message in response:
             print(message, end="")
 
-
-    # Test code 
+    # Test code
 
     # models = [
     #     (model, ChatBot.get_chain("GPT", model)) for model in get_args(ChatBotConfig.OPENAI_MODELS)
@@ -403,4 +405,3 @@ if __name__ == "__main__":
     #     for message in response:
     #         print(message, end="")
     #     print("\n\n")
-
