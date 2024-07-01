@@ -34,8 +34,11 @@ $ python app.py
 
 Then open your browser and navigate the link provided in the terminal.
 
-> Note: The application is using python 3.10^
-> Important: For the mistral embedding to work corretly it needs to load a tokenizer, for this the HF_TOKEN is set in the .env file, but you also need to visit the following link: [Mistral Huggingface](https://huggingface.co/mistralai/Mixtral-8x7B-v0.1) and agree to the terms and conditions. If you choose to not go with this option a heuristic solution will be used instead.
+> [!NOTE]
+> The application is using python 3.10^
+
+> [!WARNING]
+> For the mistral embedding to work corretly it needs to load a tokenizer, for this the HF_TOKEN is set in the .env file, but you also need to visit the following link: [Mistral Huggingface](https://huggingface.co/mistralai/Mixtral-8x7B-v0.1) and agree to the terms and conditions. If you choose to not go with this option a heuristic solution will be used instead.
 
 You can experiment with the jupyter notebook version of the application by loading it into a jupyter notebook environment.
 
