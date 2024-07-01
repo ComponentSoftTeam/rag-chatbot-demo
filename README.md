@@ -1,4 +1,3 @@
-
 # Chatbot
 
 ## Resources
@@ -20,3 +19,8 @@
 ### LLM Generation
 - Prompt condensation
 - How to encorparete the RAG model into the LLM model
+
+
+# TODO: do setup and getting started, dont forget the accept
+# https://huggingface.co/mistralai/Mixtral-8x7B-v0.1
+

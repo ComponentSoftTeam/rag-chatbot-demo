@@ -1,25 +1,36 @@
-from dotenv import load_dotenv, find_dotenv
-from langchain_community.vectorstores import Chroma
-from langchain_community.embeddings import SentenceTransformerEmbeddings
-from langchain_mistralai import MistralAIEmbeddings
-from langchain_core.embeddings import Embeddings
 import os
-from langchain_openai import OpenAIEmbeddings
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Type
-from langchain_core.vectorstores import VectorStore
-from langchain_core.documents import Document
-from sentence_transformers import CrossEncoder
-import numpy as np
 
 import chromadb
+import numpy as np
+from dotenv import find_dotenv, load_dotenv
+from langchain_community.vectorstores import Chroma
+from langchain_core.documents import Document
+from langchain_core.embeddings import Embeddings
+from langchain_core.vectorstores import VectorStore
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_mistralai import MistralAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
+from sentence_transformers import CrossEncoder
 
-from config import EmbeddingType, OPENAI_CHROMA_COLLECTION, STRANSFORMERS_CHROMA_COLLECTION, MISTRAL_CHROMA_COLLECTION
+from config import (MISTRAL_CHROMA_COLLECTION, OPENAI_CHROMA_COLLECTION,
+                    STRANSFORMERS_CHROMA_COLLECTION, EmbeddingType)
 
 
 class RAG(VectorStore):
     _cross_encoder = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
 
     def __init__(self, embedding_type: EmbeddingType) -> None:
+        """
+        Set up the RAG model with the specified embedding type.
+        
+        Args:
+            embedding_type (EmbeddingType): The type of embedding to use.
+
+        Raises:
+            ValueError: If the embedding type is invalid.
+        """
+        
         match embedding_type:
             case EmbeddingType.OPEN_AI:
                 self._langchain_chroma = Chroma(
@@ -29,7 +40,7 @@ class RAG(VectorStore):
             case EmbeddingType.SENTENCE_TRANSFORMER:
                 self._langchain_chroma = Chroma(
                     persist_directory=STRANSFORMERS_CHROMA_COLLECTION,
-                    embedding_function=SentenceTransformerEmbeddings(),
+                    embedding_function=HuggingFaceEmbeddings(),
                 )
             case EmbeddingType.MISTRAL:
                 self._langchain_chroma = Chroma(
@@ -55,6 +66,21 @@ class RAG(VectorStore):
     def similarity_search(
         self, query: str, k: int = 4, **kwargs: Any
     ) -> List[Document]:
+        """
+        Search for the at most k most similar documents to the query.
+
+        Performs a k-nearest neighbors search on the vector store using the query.
+        Filters out any non-similar documents using the cross-encoder.
+        Reranks the documents based on the cross-encoder scores.
+        
+        Args:
+            query (str): The query to search for.
+            k (int): The maximum number of documents to return. Defaults to 4.
+
+        Returns:
+            List[Document]: The at most k most similar documents to the query in order of relevance.
+        """
+
         results = self._langchain_chroma.similarity_search(query, k, **kwargs)
         docs = [doc.page_content for doc in results]
         # print(f"\n query = {query}, docs = {docs}\n") # by EE
