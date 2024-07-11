@@ -30,11 +30,11 @@ from rag_utils import RAG, EmbeddingType
 class ModelFamily(Enum):
     """Represents the model families available for selection."""
 
-    LLAMA = "Llama"
-    GPT = "GPT"
-    MISTRAL = "Mistral"
-    GEMINI = "Gemini"
-    CLAUDE = "Claude"
+    GPT = 'OpenAI GPT'
+    GEMINI = 'Google Gemini'
+    CLAUDE = 'Anthropic Claude'
+    MISTRAL = 'MistralAI Mistral'
+    LLAMA = 'Meta Llama'
 
 
 class ModelName(Enum):
@@ -43,8 +43,8 @@ class ModelName(Enum):
     Each model name is associated with a model family and a model identifier.
     """
 
-    LLAMA3_70B_PROMPTING = (ModelFamily.LLAMA, "llama-3-70b-prompting")
-    LLAMA_3_70B_FIREFUNCTION_V2 = (ModelFamily.LLAMA, "Llama-3-70b-firefunction-v2")
+    LLAMA3_8B_INSTRUCT = (ModelFamily.LLAMA, 'llama-3-8b-instruct')
+    LLAMA3_70B_PROMPTING = (ModelFamily.LLAMA, "llama-3-70b-prompting")    
     GPT_3_5_TURBO = (ModelFamily.GPT, "gpt-3.5-turbo")
     GPT_4O = (ModelFamily.GPT, "gpt-4o")
     GPT_4_TURBO = (ModelFamily.GPT, "gpt-4-turbo")
@@ -54,7 +54,7 @@ class ModelName(Enum):
     GEMINI_1_5_FLASH = (ModelFamily.GEMINI, "gemini-1.5-flash")
     GEMINI_1_5_PRO = (ModelFamily.GEMINI, "gemini-1.5-pro")
     CLAUDE_3_HAIKU = (ModelFamily.CLAUDE, "claude-3-haiku")
-    CLAUDE_3_SONNET = (ModelFamily.CLAUDE, "claude-3-sonnet")
+    CLAUDE_3_5_SONNET = (ModelFamily.CLAUDE, 'claude-3.5-sonnet')
     CLAUDE_3_OPUS = (ModelFamily.CLAUDE, "claude-3-opus")
 
 
@@ -84,9 +84,9 @@ def get_llm(
                 temperature=temperature,
             )
 
-        case ModelName.LLAMA_3_70B_FIREFUNCTION_V2:
+        case ModelName.LLAMA3_8B_INSTRUCT:
             return ChatFireworks(
-                name="accounts/fireworks/models/firefunction-v1",
+                name="accounts/fireworks/models/llama-v3-8b-instruct",
                 max_tokens=max_new_tokens,
                 temperature=temperature,
             )
@@ -154,7 +154,7 @@ def get_llm(
                 temperature=temperature,
             )
 
-        case ModelName.CLAUDE_3_SONNET:
+        case ModelName.CLAUDE_3_5_SONNET:
             return ChatAnthropic(
                 model_name="claude-3-5-sonnet-20240620",
                 max_tokens=max_new_tokens,

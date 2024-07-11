@@ -146,13 +146,13 @@ with gr.Blocks(title="CompSoft") as demo:
         model_family = gr.Dropdown(
             choices=list(model_by_families.keys()),
             label="Model family",
-            value="Mistral",
+            value="OpenAI GPT",
         )
 
         model_name = gr.Dropdown(
             list(model_by_families[model_family.value]),
             label="Model",
-            value="mistral-large",
+            value="gpt-4o",
         )
 
     with gr.Row():
