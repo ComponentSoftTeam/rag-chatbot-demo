@@ -8,7 +8,8 @@ from dotenv import load_dotenv, find_dotenv
 from chatbot import ChatBot, ModelFamily, ModelName
 
 # The .env file is expected to be in the root directory of the project
-load_dotenv(find_dotenv())
+load_dotenv(override=True)
+os.environ["LANGSMITH_PROJECT"] = "CompSoft RAG demo"
 
 GRADIO_USER = os.environ["GRADIO_USER"]
 GRADIO_PASSWORD = os.environ["GRADIO_PASSWORD"]
@@ -163,7 +164,7 @@ with gr.Blocks(title="CompSoft") as demo:
         )
 
     with gr.Row():
-        prompt = gr.Textbox(label="Question", value="What is 5G?")
+        prompt = gr.Textbox(label="Question", value="What are the main features of 5G?")
 
     with gr.Row():
         submit_btn_nostreaming = gr.Button(value="Answer")
@@ -173,7 +174,7 @@ with gr.Blocks(title="CompSoft") as demo:
 
     gr.Examples(
         [
-            "What is 5G?",
+            "What are the main features of 5G?",
             "What are its main adventages compared to 4G?",
             "What frequencies does it use?",
             "Which organisations are responsible for its standardization?",

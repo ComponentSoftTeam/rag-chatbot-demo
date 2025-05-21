@@ -43,19 +43,20 @@ class ModelName(Enum):
     Each model name is associated with a model family and a model identifier.
     """
 
-    LLAMA3_8B_INSTRUCT = (ModelFamily.LLAMA, 'llama-3-8b-instruct')
-    LLAMA3_70B_PROMPTING = (ModelFamily.LLAMA, "llama-3-70b-prompting")    
-    GPT_3_5_TURBO = (ModelFamily.GPT, "gpt-3.5-turbo")
+    LLAMA_3_1_8B_INSTRUCT = (ModelFamily.LLAMA, 'llama-v3p1-8b-instruct')
+    LLAMA_3_3_70B_INSTRUCT = (ModelFamily.LLAMA, "llama-v3p3-70b-instruct")  
+    GPT_4O_MINI = (ModelFamily.GPT, "gpt-4o-mini")      
     GPT_4O = (ModelFamily.GPT, "gpt-4o")
-    GPT_4_TURBO = (ModelFamily.GPT, "gpt-4-turbo")
+    GPT_3_5_TURBO = (ModelFamily.GPT, "gpt-3.5-turbo")
+    MISTRAL_SMALL = (ModelFamily.MISTRAL, "mistral-small")    
+    MISTRAL_MEDIUM = (ModelFamily.MISTRAL, "mistral-medium")
     MISTRAL_LARGE = (ModelFamily.MISTRAL, "mistral-large")
-    OPEN_MIXTRAL_8X22B = (ModelFamily.MISTRAL, "open-mixtral-8x22b")
-    MISTRAL_SMALL = (ModelFamily.MISTRAL, "mistral-small")
-    GEMINI_1_5_FLASH = (ModelFamily.GEMINI, "gemini-1.5-flash")
-    GEMINI_1_5_PRO = (ModelFamily.GEMINI, "gemini-1.5-pro")
+    GEMINI_2_0_FLASH_LITE = (ModelFamily.GEMINI, 'gemini-2.0-flash-lite')
+    GEMINI_2_0_FLASH = (ModelFamily.GEMINI, "gemini-2.0-flash")
+    #GEMINI_2_5_PRO = (ModelFamily.GEMINI, "gemini-2.5-pro-preview-05-06")
     CLAUDE_3_HAIKU = (ModelFamily.CLAUDE, "claude-3-haiku")
     CLAUDE_3_5_SONNET = (ModelFamily.CLAUDE, 'claude-3.5-sonnet')
-    CLAUDE_3_OPUS = (ModelFamily.CLAUDE, "claude-3-opus")
+    CLAUDE_3_7_SONNET = (ModelFamily.CLAUDE, "claude-3-7-sonnet-20250219")
 
 
 def get_llm(
@@ -77,16 +78,16 @@ def get_llm(
     """
 
     match model_name:
-        case ModelName.LLAMA3_70B_PROMPTING:
+        case ModelName.LLAMA_3_3_70B_INSTRUCT:
             return ChatFireworks(
-                name="accounts/fireworks/models/llama-v3-70b-instruct",
+                model="accounts/fireworks/models/llama-v3p3-70b-instruct",
                 max_tokens=max_new_tokens,
                 temperature=temperature,
             )
 
-        case ModelName.LLAMA3_8B_INSTRUCT:
+        case ModelName.LLAMA_3_1_8B_INSTRUCT:
             return ChatFireworks(
-                name="accounts/fireworks/models/llama-v3-8b-instruct",
+                model="accounts/fireworks/models/llama-v3p1-8b-instruct",
                 max_tokens=max_new_tokens,
                 temperature=temperature,
             )
@@ -97,17 +98,15 @@ def get_llm(
                 max_tokens=max_new_tokens,
                 temperature=temperature,
             )
-
         case ModelName.GPT_4O:
             return ChatOpenAI(
                 model="gpt-4o",
                 max_tokens=max_new_tokens,
                 temperature=temperature,
             )
-
-        case ModelName.GPT_4_TURBO:
+        case ModelName.GPT_4O_MINI:
             return ChatOpenAI(
-                model="gpt-4-turbo",
+                model="gpt-4o-mini",
                 max_tokens=max_new_tokens,
                 temperature=temperature,
             )
@@ -118,14 +117,12 @@ def get_llm(
                 max_tokens=max_new_tokens,
                 temperature=temperature,
             )
-
-        case ModelName.OPEN_MIXTRAL_8X22B:
+        case ModelName.MISTRAL_MEDIUM:
             return ChatMistralAI(
-                name="open-mixtral-8x22b",
+                name="mistral-medium-latest",
                 max_tokens=max_new_tokens,
                 temperature=temperature,
             )
-
         case ModelName.MISTRAL_SMALL:
             return ChatMistralAI(
                 name="mistral-small-latest",
@@ -133,16 +130,15 @@ def get_llm(
                 temperature=temperature,
             )
 
-        case ModelName.GEMINI_1_5_FLASH:
+        case ModelName.GEMINI_2_0_FLASH_LITE:
             return ChatGoogleGenerativeAI(
-                model="gemini-1.5-flash",
+                model="gemini-2.0-flash-lite",
                 max_output_tokens=max_new_tokens,
                 temperature=temperature,
             )
-
-        case ModelName.GEMINI_1_5_PRO:
+        case ModelName.GEMINI_2_0_FLASH:
             return ChatGoogleGenerativeAI(
-                model="gemini-1.5-pro",
+                model="gemini-2.0-flash",
                 max_output_tokens=max_new_tokens,
                 temperature=temperature,
             )
@@ -161,9 +157,9 @@ def get_llm(
                 temperature=temperature,
             )
 
-        case ModelName.CLAUDE_3_OPUS:
+        case ModelName.CLAUDE_3_7_SONNET:
             return ChatAnthropic(
-                model_name="claude-3-opus-20240229",
+                model_name="claude-3-7-sonnet-20250219",
                 max_tokens=max_new_tokens,
                 temperature=temperature,
             )
@@ -278,7 +274,7 @@ class ChatBot:
                 chat_history=lambda x: get_buffer_string(x["chat_history"])
             )
             | CONDENSE_QUESTION_PROMPT
-            | cls.get_condensation_model(model_name, max_new_tokens=256)
+            | cls.get_condensation_model(model_name, max_new_tokens=4000)
             | StrOutputParser(),
             question=lambda x: x["question"],
             chat_history=lambda x: x["chat_history"],
@@ -313,7 +309,7 @@ class ChatBot:
             standalone_question
             | question_context
             | ANSWER_PROMPT
-            | cls.get_chat_model(model_name, max_new_tokens=512)
+            | cls.get_chat_model(model_name, max_new_tokens=4000)
             | StrOutputParser()
         )
 
